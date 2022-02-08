@@ -6,7 +6,7 @@ This project will later utilize Apache Maven in order to compile and package int
 
 
 ## Created by:
-- Syeda Islam (Product Owner)
 - Anthony Makaj (Scrum Master)
+- Syeda Islam (Product Owner)
 - Ibrahim Nabid
 - Imu Islam
