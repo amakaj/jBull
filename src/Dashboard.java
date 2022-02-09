@@ -14,7 +14,7 @@ public class Dashboard {
         // Frame creation
         JFrame frame = new JFrame("jBull");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(850, 550);
+        frame.setSize(900, 600);
         frame.setResizable(false);
 
         // Display the window.
