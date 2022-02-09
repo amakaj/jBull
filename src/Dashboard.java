@@ -1,6 +1,6 @@
 import javax.swing.*;
 
-public class LoginScreen {
+public class Dashboard {
     /**
      * Create the GUI and show it. For thread safety,
      * this method should be invoked from the
@@ -14,7 +14,7 @@ public class LoginScreen {
         // Frame creation
         JFrame frame = new JFrame("jBull");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(300, 400);
+        frame.setSize(850, 550);
         frame.setResizable(false);
 
         // Display the window.
