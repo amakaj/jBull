@@ -7,7 +7,6 @@ public class Dashboard {
     private void changeButtonStyle(JButton button) {
         button.setBorderPainted(false);
         button.setFocusPainted(false);
-        button.setContentAreaFilled(true);
         button.setBackground(Color.WHITE);
     }
 
@@ -22,6 +21,19 @@ public class Dashboard {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(900, 600);
         frame.setResizable(false);
+        frame.getContentPane().setLayout(null);
+
+        JPanel panel1 = new JPanel();
+        panel1.setBackground(Color.WHITE);
+        panel1.setBounds(0, 0, 550, 600);
+        frame.getContentPane().add(panel1);
+        panel1.setLayout(null);
+
+        JPanel panel2 = new JPanel();
+        panel2.setBackground(Color.WHITE);
+        panel2.setLayout(null);
+        panel2.setBounds(550, 0, 450, 600);
+        frame.getContentPane().add(panel2);
 
         // Display the window
         frame.setVisible(true);
@@ -32,11 +44,12 @@ public class Dashboard {
         menubar.setBackground(Color.WHITE); // Menu bar will be white
 
         // Instantiate the image objects
-        ImageIcon bullIcon = new ImageIcon(new ImageIcon(getClass().getResource("bull.png")).getImage()
-                .getScaledInstance(25, 25, Image.SCALE_DEFAULT));
+        ImageIcon bullIcon = new ImageIcon(new ImageIcon(getClass().getResource("/main/resources/bull.png")).getImage()
+                .getScaledInstance(30, 30, Image.SCALE_DEFAULT));
 
-        ImageIcon profileIcon = new ImageIcon(new ImageIcon(getClass().getResource("profile.png")).getImage()
-                .getScaledInstance(25, 25, Image.SCALE_DEFAULT));
+        ImageIcon profileIcon = new ImageIcon(
+                new ImageIcon(getClass().getResource("/main/resources/profile.png")).getImage()
+                        .getScaledInstance(30, 30, Image.SCALE_DEFAULT));
 
         // Set the icon image for the frame
         frame.setIconImage(bullIcon.getImage());
@@ -54,6 +67,9 @@ public class Dashboard {
         changeButtonStyle(news);
         changeButtonStyle(help);
 
+        JLabel bullWhiteSpace = new JLabel("   ");
+        menubar.add(bullWhiteSpace);
+
         menubar.add(bullIconLabel);
         menubar.add(buySell);
         menubar.add(news);
@@ -62,6 +78,8 @@ public class Dashboard {
         // Menu items aligned on the right
         menubar.add(Box.createHorizontalGlue()); // Separates right and left
         JMenu profileName = new JMenu("John Doe");
+        profileName.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT); // items in the menu will open aligned to the right
+
 
         menubar.add(profileName);
         menubar.add(profileIconLabel);
