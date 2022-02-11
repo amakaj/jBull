@@ -61,11 +61,29 @@ public class Dashboard {
         frame.getContentPane().setLayout(null);
 
         // Graph panel, which will display the graph
+        
+        ImageIcon stock = new ImageIcon(new ImageIcon(getClass().getResource("/main/resources/Stock_Graph.jpeg")).getImage()
+                .getScaledInstance(500, 400, Image.SCALE_DEFAULT));
+        JLabel portfolio = new JLabel("Portfolio: ");
+        JLabel amount = new JLabel("$298.34");
+        Font font = new Font("Courier", Font.BOLD,15);
+
+        JLabel stock_image = new JLabel(stock);
+        stock_image.setBounds(0, 0, 550, 500);
+        portfolio.setBounds(25,15,100,50);
+        portfolio.setFont(font);
+        amount.setBounds(460,15,125,50);
+        amount.setFont(font);
         JPanel panel1 = new JPanel();
-        panel1.setBackground(Color.WHITE);
-        panel1.setBounds(0, 0, 550, 600);
-        frame.getContentPane().add(panel1);
         panel1.setLayout(null);
+        panel1.setBackground(Color.WHITE);
+        panel1.setBounds(0,0,550,600);
+        panel1.add(stock_image);
+        panel1.add(portfolio);
+        panel1.add(amount);
+        frame.getContentPane().add(panel1);
+        
+        
 
         // List panel, which will display the stocks owned and the watchlist
         JPanel panel2 = new JPanel();
