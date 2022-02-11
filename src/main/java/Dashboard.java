@@ -4,10 +4,13 @@ import javax.swing.*;
 import java.awt.*;
 
 import java.util.Date;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.CompoundBorder;
 
 public class Dashboard {
 	// Menu bar must be accessible to all methods
     JMenuBar menubar = new JMenuBar();
+    private JTable table;
 
     // Takes button as parameter to match the style of the menu bar
     private void changeButtonStyle(JButton button) {
@@ -62,10 +65,26 @@ public class Dashboard {
 
         // List panel, which will display the stocks owned and the watchlist
         JPanel panel2 = new JPanel();
+        panel2.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
         panel2.setBackground(Color.WHITE);
         panel2.setLayout(null);
         panel2.setBounds(550, 0, 450, 600);
         frame.getContentPane().add(panel2);
+        
+        JLabel lblNewLabel = new JLabel("Stocks");
+        lblNewLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 23));
+        lblNewLabel.setBounds(6, 6, 118, 38);
+        panel2.add(lblNewLabel);
+        
+        String[] columnName = {"Stocks","Price"};
+        Object[][] data = {{"AAPL","$134.50"}, {"MSFT","$56.78"}, {"GOOG","$107.06"}};
+        table = new JTable(data, columnName);
+        table.setPreferredScrollableViewportSize(new Dimension(304,249));
+        table.setFillsViewportHeight(true);
+        table.setBounds(16, 56, 304, 249);
+        panel2.add(table);
+        
+        // JScrollPane scrollpane = new JScrollPane(table);
 
         // Display the window
         frame.setVisible(true);
