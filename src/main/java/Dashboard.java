@@ -78,8 +78,8 @@ public class Dashboard {
         // Menu items aligned on the right
         menubar.add(Box.createHorizontalGlue()); // Separates right and left
         JMenu profileName = new JMenu("John Doe");
-        profileName.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT); // items in the menu will open aligned to the right
-
+        profileName.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT); // items in the menu will open aligned
+                                                                                 // to the right
 
         menubar.add(profileName);
         menubar.add(profileIconLabel);
