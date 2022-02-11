@@ -6,6 +6,7 @@ import java.awt.*;
 import java.util.Date;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
+import javax.swing.border.MatteBorder;
 
 public class Dashboard {
 	// Menu bar must be accessible to all methods
@@ -77,11 +78,17 @@ public class Dashboard {
         panel2.add(lblNewLabel);
         
         String[] columnName = {"Stocks","Price"};
-        Object[][] data = {{"AAPL","$134.50"}, {"MSFT","$56.78"}, {"GOOG","$107.06"}};
-        table = new JTable(data, columnName);
+        Object[][] data = {{"AAPL","$134.50"}, {"MSFT","$56.78"}, {"GOOG","$107.06"}, {"AAPL","$172.16"}, {"DDOG","$174.51"}, {"QMCO","$3.02"}, {"TSLA","$904.55"}, {"NVDA","$258.24"}, {"AFRM","$58.82"}, {"SOFI","$12.40"}, {"MSFT","$56.78"}, {"AMD","$125.77"}, {"AAPL","$134.50"}, {"MSFT","$56.78"}, {"GOOG","$107.06"}, {"AAPL","$134.50"}, {"MSFT","$56.78"}, {"GOOG","$107.06"}, {"AAPL","$134.50"}, {"MSFT","$56.78"}, {"GOOG","$107.06"}, {"AAPL","$134.50"}, {"MSFT","$56.78"}, {"GOOG","$107.06"}, {"AAPL","$134.50"}, {"MSFT","$56.78"}, {"GOOG","$107.06"}, {"AAPL","$134.50"}, {"MSFT","$56.78"}, {"GOOG","$107.06"}};
+        table = new JTable(data, columnName) {
+        	public boolean editCellAt(int row, int column, java.util.EventObject e) {
+                return false;
+             }
+        };
+        
+        table.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
         table.setPreferredScrollableViewportSize(new Dimension(304,249));
         table.setFillsViewportHeight(true);
-        table.setBounds(16, 56, 304, 249);
+        table.setBounds(16, 56, 304, 191);
         panel2.add(table);
         
         // JScrollPane scrollpane = new JScrollPane(table);
