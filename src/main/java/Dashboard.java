@@ -3,19 +3,49 @@ package main.java;
 import javax.swing.*;
 import java.awt.*;
 
+import java.util.Date;
+
 public class Dashboard {
+	// Menu bar must be accessible to all methods
+    JMenuBar menubar = new JMenuBar();
+
+    // Takes button as parameter to match the style of the menu bar
     private void changeButtonStyle(JButton button) {
         button.setBorderPainted(false);
         button.setFocusPainted(false);
         button.setBackground(Color.WHITE);
     }
+    
+    // Clock method that will run on its own thread
+    private void startClock() {
+    	Thread startClockThread = new Thread() {
+    		public void run() {
+    			JLabel clockLabel = new JLabel("null");
+    			menubar.add(clockLabel);
+    			while (true) {
+    				try {
+    					Date date = new Date();
+    					clockLabel.setText(String.format("    %tr    ", date));
+    					
+    					// update every second (usually 1 second behind system clock)
+    					sleep(1000L); 
+    				} catch (InterruptedException e)
+    				{
+    					JOptionPane.showMessageDialog(null,  "ERROR: Time is broken!");
+    					continue;
+    				}
+    			}
+    		}
+    	};
+    	startClockThread.start();
+    }
 
     /*
-     * Method invoked from the event-dispatching thread for thread-safety,
+     * Method invoked from the event-dispatching thread (EDT) for thread-safety,
      * since oftentimes Java Swing elements are not thread-safe
      * This method will create the GUI and show it.
      */
-    private void createAndShowGUI() {
+    public void createAndShowGUI() {
         // Frame creation
         JFrame frame = new JFrame("jBull");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -23,12 +53,14 @@ public class Dashboard {
         frame.setResizable(false);
         frame.getContentPane().setLayout(null);
 
+        // Graph panel, which will display the graph
         JPanel panel1 = new JPanel();
         panel1.setBackground(Color.WHITE);
         panel1.setBounds(0, 0, 550, 600);
         frame.getContentPane().add(panel1);
         panel1.setLayout(null);
 
+        // List panel, which will display the stocks owned and the watchlist
         JPanel panel2 = new JPanel();
         panel2.setBackground(Color.WHITE);
         panel2.setLayout(null);
@@ -39,7 +71,6 @@ public class Dashboard {
         frame.setVisible(true);
 
         // Set the menu bar
-        JMenuBar menubar = new JMenuBar();
         frame.setJMenuBar(menubar);
         menubar.setBackground(Color.WHITE); // Menu bar will be white
 
@@ -58,7 +89,7 @@ public class Dashboard {
         JLabel bullIconLabel = new JLabel(bullIcon);
         JLabel profileIconLabel = new JLabel(profileIcon);
 
-        // Menu items aligned on the left
+        // Menus aligned on the left
         JButton buySell = new JButton("Buy/Sell");
         JButton news = new JButton("News");
         JButton help = new JButton("Help");
@@ -75,11 +106,17 @@ public class Dashboard {
         menubar.add(news);
         menubar.add(help);
 
-        // Menu items aligned on the right
+        // Menus aligned on the right
         menubar.add(Box.createHorizontalGlue()); // Separates right and left
         JMenu profileName = new JMenu("John Doe");
         profileName.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT); // items in the menu will open aligned
                                                                                  // to the right
+        // Menu items to be appended to profile menu
+        JMenuItem editProfile = new JMenuItem("Edit Profile");
+        JMenuItem logout = new JMenuItem("Logout");
+        
+        profileName.add(editProfile);
+        profileName.add(logout);
 
         menubar.add(profileName);
         menubar.add(profileIconLabel);
@@ -87,12 +124,12 @@ public class Dashboard {
 
     // Main function
     public static void main(String[] args) {
-        // Schedule a job for the event-dispatching thread:
-        // creating and showing this application's GUI.
+        // Schedule jobs for the event-dispatching thread
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 Dashboard d1 = new Dashboard();
                 d1.createAndShowGUI();
+                d1.startClock();
             }
         });
     }
