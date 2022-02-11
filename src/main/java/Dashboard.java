@@ -7,11 +7,14 @@ import java.util.Date;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.MatteBorder;
+import javax.swing.border.LineBorder;
 
 public class Dashboard {
 	// Menu bar must be accessible to all methods
     JMenuBar menubar = new JMenuBar();
     private JTable table;
+    private JTable table_1;
+    private JTable table_2;
 
     // Takes button as parameter to match the style of the menu bar
     private void changeButtonStyle(JButton button) {
@@ -66,7 +69,6 @@ public class Dashboard {
 
         // List panel, which will display the stocks owned and the watchlist
         JPanel panel2 = new JPanel();
-        panel2.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
         panel2.setBackground(Color.WHITE);
         panel2.setLayout(null);
         panel2.setBounds(550, 0, 450, 600);
@@ -90,6 +92,25 @@ public class Dashboard {
         table.setFillsViewportHeight(true);
         table.setBounds(16, 56, 304, 191);
         panel2.add(table);
+        
+        JLabel lblNewLabel_1 = new JLabel("Watchlist");
+        lblNewLabel_1.setFont(new Font("Lucida Grande", Font.PLAIN, 23));
+        lblNewLabel_1.setBounds(6, 259, 118, 38);
+        panel2.add(lblNewLabel_1);
+        
+        String[] columnName2 = {"Stocks","Price"};
+        Object[][] data2 = {{"DDOG","$174.51"}, {"QMCO","$3.02"}, {"TSLA","$904.55"}, {"NVDA","$258.24"}, {"AFRM","$58.82"}, {"SOFI","$12.40"}, {"MSFT","$56.78"}, {"AMD","$125.77"}, {"AAPL","$134.50"}, {"MSFT","$56.78"}, {"GOOG","$107.06"}, {"AAPL","$134.50"}, {"MSFT","$56.78"}, {"GOOG","$107.06"}, {"AAPL","$134.50"}, {"MSFT","$56.78"}};
+        table_2 = new JTable(data2, columnName2);
+        table_2.setPreferredScrollableViewportSize(new Dimension(304,249));
+        table_2.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
+        table_2.setBounds(16, 309, 304, 181);
+        table_2.setFillsViewportHeight(true);
+        panel2.add(table_2);
+        
+       
+        
+        
+
         
         // JScrollPane scrollpane = new JScrollPane(table);
 
