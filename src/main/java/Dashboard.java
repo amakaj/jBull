@@ -58,6 +58,9 @@ public class Dashboard {
 		frame.setSize(900, 600);
 		frame.setResizable(false);
 		frame.getContentPane().setLayout(null);
+		
+		// Display the window
+		frame.setVisible(true);
 
 		// Graph panel, which will display the graph
 
@@ -134,9 +137,6 @@ public class Dashboard {
 		panel2.add(table_2);
 
 		// JScrollPane scrollpane = new JScrollPane(table);
-
-		// Display the window
-		frame.setVisible(true);
 
 		// Set the menu bar
 		frame.setJMenuBar(menubar);
