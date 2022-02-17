@@ -9,7 +9,6 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.LineBorder;
 //Hello
-//Whats up
 public class Dashboard {
 	// Menu bar must be accessible to all methods
     JMenuBar menubar = new JMenuBar();
