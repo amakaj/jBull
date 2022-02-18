@@ -72,9 +72,9 @@ public class LoginScreen {
 	
 		loginFrame.setVisible(true);
 		
-		/*ImageIcon bullIcon = new ImageIcon(new ImageIcon(getClass().getResource("/main/resources/bull.png")).getImage()
+		ImageIcon bullToolbarIcon = new ImageIcon(new ImageIcon(getClass().getResource("/main/resources/bull.png")).getImage()
 				.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
-		loginFrame.setIconImage(bullIcon.getImage());*/
+		loginFrame.setIconImage(bullToolbarIcon.getImage());
 		
 		//ACTION LISTENERS
 		loginButton.addActionListener(new ActionListener() {
