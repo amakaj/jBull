@@ -192,8 +192,6 @@ public class Dashboard {
 		news.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				News n1 = new News();
-				n1.showNewsScreen();
-				frame.setVisible(false);
 			}
 		});
 	}
