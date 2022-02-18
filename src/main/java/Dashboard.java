@@ -189,9 +189,18 @@ public class Dashboard {
 		menubar.add(profileIconLabel);
 		startClock();
 		
+		//ACTION LISTENERS
 		news.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				News n1 = new News();
+			}
+		});
+		
+		logout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.setVisible(false);
+				LoginScreen l1 = new LoginScreen();
+				frame.dispose();
 			}
 		});
 	}

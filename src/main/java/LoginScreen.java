@@ -84,6 +84,14 @@ public class LoginScreen {
 				loginFrame.dispose();
 			}
 		});
+		
+		createButton.addActionListener(new ActionListener () {
+			public void actionPerformed(ActionEvent e) {
+				loginFrame.setVisible(false);
+				AccountCreation a1 = new AccountCreation();
+				loginFrame.dispose();
+			}
+		});
 	}
 	
 	public static void main(String[] args) {
@@ -95,3 +103,4 @@ public class LoginScreen {
 		});
 	}
 }
+
