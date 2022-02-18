@@ -4,21 +4,16 @@ import javax.swing.*;
 import java.awt.*;
 
 import java.util.Date;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.MatteBorder;
 
-import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Dashboard {
 	// Menu bar must be accessible to all methods
 	JMenuBar menubar = new JMenuBar();
 	private JTable table;
+	private JTable table_1;
 	private JTable table_2;
 
 	// Takes button as parameter to match the style of the menu bar
@@ -38,7 +33,6 @@ public class Dashboard {
 					try {
 						Date date = new Date();
 						clockLabel.setText(String.format("    %tr    ", date));
-
 						// update every second (usually 1 second behind system clock)
 						sleep(1000L);
 					} catch (InterruptedException e) {
@@ -50,13 +44,13 @@ public class Dashboard {
 		};
 		startClockThread.start();
 	}
-
+	
 	/*
 	 * Method invoked from the event-dispatching thread (EDT) for thread-safety,
 	 * since oftentimes Java Swing elements are not thread-safe
 	 * This method will create the GUI and show it.
 	 */
-	public void createAndShowGUI() {
+	public Dashboard() {
 		// Frame creation
 		JFrame frame = new JFrame("jBull");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -122,18 +116,7 @@ public class Dashboard {
 		table.setPreferredScrollableViewportSize(new Dimension(304, 249));
 		table.setFillsViewportHeight(true);
 		table.setBounds(16, 56, 304, 191);
-		
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-        JScrollPane pane = new JScrollPane(table);
-//		JScrollPane js = new JScrollPane(table);
-//		ScrollBar table1VerticalScrollBar = findScrollBar(table, Orientation.VERTICAL);
-//		
-//		js.setVisible(true);
-		panel2.add(pane);
 		panel2.add(table);
-		// panel2.add(table);
-		
 
 		JLabel lblNewLabel_1 = new JLabel("Watchlist");
 		lblNewLabel_1.setFont(new Font("Lucida Grande", Font.PLAIN, 23));
@@ -151,6 +134,8 @@ public class Dashboard {
 		table_2.setBounds(16, 309, 304, 181);
 		table_2.setFillsViewportHeight(true);
 		panel2.add(table_2);
+
+		// JScrollPane scrollpane = new JScrollPane(table);
 
 		// Set the menu bar
 		frame.setJMenuBar(menubar);
@@ -202,16 +187,20 @@ public class Dashboard {
 
 		menubar.add(profileName);
 		menubar.add(profileIconLabel);
-	}
-
-	// Main function
-	public static void main(String[] args) {
-		// Schedule jobs for the event-dispatching thread
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				Dashboard d1 = new Dashboard();
-				d1.createAndShowGUI();
-				d1.startClock();
+		startClock();
+		
+		//ACTION LISTENERS
+		news.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				News n1 = new News();
+			}
+		});
+		
+		logout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.setVisible(false);
+				LoginScreen l1 = new LoginScreen();
+				frame.dispose();
 			}
 		});
 	}
