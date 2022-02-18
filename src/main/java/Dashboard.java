@@ -4,10 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 
 import java.util.Date;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
+
 import javax.swing.border.MatteBorder;
-import javax.swing.border.LineBorder;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -52,7 +50,7 @@ public class Dashboard {
 	 * since oftentimes Java Swing elements are not thread-safe
 	 * This method will create the GUI and show it.
 	 */
-	public void createAndShowGUI() {
+	public Dashboard() {
 		// Frame creation
 		JFrame frame = new JFrame("jBull");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -196,18 +194,6 @@ public class Dashboard {
 				News n1 = new News();
 				n1.showNewsScreen();
 				frame.setVisible(false);
-			}
-		});
-	}
-
-	public static Dashboard d1 = new Dashboard();
-	
-	// Main function
-	public static void main(String[] args) {
-		// Schedule jobs for the event-dispatching thread
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				d1.createAndShowGUI();
 			}
 		});
 	}

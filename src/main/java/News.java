@@ -26,14 +26,4 @@ public class News extends Dashboard {
 			}
 		});*/
 	}
-
-	public static void main(String[] args) {
-		// Schedule jobs for the event-dispatching thread
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				News n1 = new News();
-				n1.showNewsScreen();
-			}
-		});
-	}
 }

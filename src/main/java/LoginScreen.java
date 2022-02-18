@@ -2,14 +2,14 @@ package main.java;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class LoginScreen {
 	private JTextField userField;
 	private JPasswordField passField;
 	
-	
-	
-	public void showLoginScreen() {
+	public LoginScreen() {
 		JFrame loginFrame = new JFrame("jBull Login");
 		
 		loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -29,11 +29,11 @@ public class LoginScreen {
 		bulliconlabel.setBounds(99, 23, 128, 158);
 		panel.add(bulliconlabel);
 		
-		JLabel jbull_label = new JLabel("jBull");
-		jbull_label.setBackground(Color.WHITE);
-		jbull_label.setFont(new Font("SansSerif", Font.PLAIN, 30));
-		jbull_label.setBounds(133, 182, 58, 33);
-		panel.add(jbull_label);
+		JLabel jbullLabel = new JLabel("jBull");
+		jbullLabel.setBackground(Color.WHITE);
+		jbullLabel.setFont(new Font("SansSerif", Font.PLAIN, 30));
+		jbullLabel.setBounds(133, 182, 58, 33);
+		panel.add(jbullLabel);
 		
 		JLabel userLabel = new JLabel("Username");
 		userLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
@@ -52,6 +52,7 @@ public class LoginScreen {
 		panel.add(passLabel);
 		
 		JButton loginButton = new JButton("Login");
+
 		loginButton.setForeground(Color.BLACK);
 		loginButton.setFont(new Font("SansSerif", Font.PLAIN, 20));
 		loginButton.setBackground(Color.WHITE);
@@ -74,6 +75,15 @@ public class LoginScreen {
 		/*ImageIcon bullIcon = new ImageIcon(new ImageIcon(getClass().getResource("/main/resources/bull.png")).getImage()
 				.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
 		loginFrame.setIconImage(bullIcon.getImage());*/
+		
+		//ACTION LISTENERS
+		loginButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				loginFrame.setVisible(false);
+				Dashboard d1 = new Dashboard();
+				loginFrame.dispose();
+			}
+		});
 	}
 	
 	public static void main(String[] args) {
@@ -81,7 +91,6 @@ public class LoginScreen {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				LoginScreen l1 = new LoginScreen();
-				l1.showLoginScreen();
 			}
 		});
 	}
