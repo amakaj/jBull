@@ -17,7 +17,7 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JPasswordField;
 
-//Account Creation
+//Account Creatio
 public class AccountCreation {
 
 	private JFrame frame;
