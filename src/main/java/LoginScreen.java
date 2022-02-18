@@ -4,8 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class LoginScreen {
-	private JTextField textField;
-	private JTextField textField_2;
+	private JTextField userField;
+	private JPasswordField passField;
 	
 	
 	
@@ -20,56 +20,54 @@ public class LoginScreen {
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
 		panel.setFont(new Font("SansSerif", Font.PLAIN, 35));
-		panel.setBounds(0, 0, 350, 472);
+		panel.setBounds(0, 0, 334, 461);
 		loginFrame.getContentPane().add(panel);
 		panel.setLayout(null);
 		
-		JLabel lblNewLabel = new JLabel();
-		lblNewLabel.setIcon(new ImageIcon(new ImageIcon(LoginScreen.class.getResource("/main/resources/bull.png")).getImage().getScaledInstance(125, 125, Image.SCALE_DEFAULT)));
-		lblNewLabel.setBounds(103, 25, 128, 158);
-		panel.add(lblNewLabel);
+		JLabel bulliconlabel = new JLabel();
+		bulliconlabel.setIcon(new ImageIcon(new ImageIcon(LoginScreen.class.getResource("/main/resources/bull.png")).getImage().getScaledInstance(125, 125, Image.SCALE_DEFAULT)));
+		bulliconlabel.setBounds(99, 23, 128, 158);
+		panel.add(bulliconlabel);
 		
-		JLabel lblNewLabel_1 = new JLabel("jBull");
-		lblNewLabel_1.setBackground(Color.WHITE);
-		lblNewLabel_1.setFont(new Font("SansSerif", Font.PLAIN, 30));
-		lblNewLabel_1.setBounds(137, 184, 67, 25);
-		panel.add(lblNewLabel_1);
+		JLabel jbull_label = new JLabel("jBull");
+		jbull_label.setBackground(Color.WHITE);
+		jbull_label.setFont(new Font("SansSerif", Font.PLAIN, 30));
+		jbull_label.setBounds(133, 182, 58, 33);
+		panel.add(jbull_label);
 		
-		JLabel lblNewLabel_2 = new JLabel("UserName");
-		lblNewLabel_2.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		lblNewLabel_2.setBounds(43, 248, 114, 16);
-		panel.add(lblNewLabel_2);
+		JLabel userLabel = new JLabel("Username");
+		userLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		userLabel.setBounds(37, 246, 114, 16);
+		panel.add(userLabel);
 		
-		textField = new JTextField();
-		textField.setBackground(Color.LIGHT_GRAY);
-		textField.setBounds(43, 268, 263, 41);
-		panel.add(textField);
-		textField.setColumns(10);
+		userField = new JTextField();
+		userField.setBackground(Color.WHITE);
+		userField.setBounds(37, 265, 263, 20);
+		panel.add(userField);
+		userField.setColumns(10);
 		
-		JLabel lblNewLabel_2_1 = new JLabel("Password");
-		lblNewLabel_2_1.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		lblNewLabel_2_1.setBounds(43, 321, 114, 16);
-		panel.add(lblNewLabel_2_1);
+		JLabel passLabel = new JLabel("Password");
+		passLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		passLabel.setBounds(37, 296, 114, 16);
+		panel.add(passLabel);
 		
-		JButton btnNewButton = new JButton("Login");
-		btnNewButton.setForeground(Color.BLACK);
-		btnNewButton.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		btnNewButton.setBackground(new Color(0, 0, 0));
-		btnNewButton.setBounds(43, 401, 114, 41);
-		panel.add(btnNewButton);
+		JButton loginButton = new JButton("Login");
+		loginButton.setForeground(Color.BLACK);
+		loginButton.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		loginButton.setBackground(Color.WHITE);
+		loginButton.setBounds(37, 364, 114, 41);
+		panel.add(loginButton);
 		
-		textField_2 = new JTextField();
-		textField_2.setColumns(10);
-		textField_2.setBackground(Color.LIGHT_GRAY);
-		textField_2.setBounds(43, 334, 263, 41);
-		panel.add(textField_2);
+		JButton createButton = new JButton("Create");
+		createButton.setForeground(Color.BLACK);
+		createButton.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		createButton.setBackground(Color.WHITE);
+		createButton.setBounds(186, 364, 114, 41);
+		panel.add(createButton);
 		
-		JButton btnCreate = new JButton("Create");
-		btnCreate.setForeground(Color.BLACK);
-		btnCreate.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		btnCreate.setBackground(Color.BLACK);
-		btnCreate.setBounds(181, 401, 114, 41);
-		panel.add(btnCreate);
+		passField = new JPasswordField();
+		passField.setBounds(37, 314, 263, 20);
+		panel.add(passField);
 	
 		loginFrame.setVisible(true);
 		

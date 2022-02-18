@@ -8,6 +8,8 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.LineBorder;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Dashboard {
 	// Menu bar must be accessible to all methods
@@ -33,7 +35,6 @@ public class Dashboard {
 					try {
 						Date date = new Date();
 						clockLabel.setText(String.format("    %tr    ", date));
-
 						// update every second (usually 1 second behind system clock)
 						sleep(1000L);
 					} catch (InterruptedException e) {
@@ -45,7 +46,7 @@ public class Dashboard {
 		};
 		startClockThread.start();
 	}
-
+	
 	/*
 	 * Method invoked from the event-dispatching thread (EDT) for thread-safety,
 	 * since oftentimes Java Swing elements are not thread-safe
@@ -188,16 +189,25 @@ public class Dashboard {
 
 		menubar.add(profileName);
 		menubar.add(profileIconLabel);
+		startClock();
+		
+		news.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				News n1 = new News();
+				n1.showNewsScreen();
+				frame.setVisible(false);
+			}
+		});
 	}
 
+	public static Dashboard d1 = new Dashboard();
+	
 	// Main function
 	public static void main(String[] args) {
 		// Schedule jobs for the event-dispatching thread
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				Dashboard d1 = new Dashboard();
 				d1.createAndShowGUI();
-				d1.startClock();
 			}
 		});
 	}
