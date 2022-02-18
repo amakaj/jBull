@@ -20,7 +20,7 @@ public class LoginScreen {
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
 		panel.setFont(new Font("SansSerif", Font.PLAIN, 35));
-		panel.setBounds(0, 0, 334, 461);
+		panel.setBounds(0, 0, 350, 472);
 		loginFrame.getContentPane().add(panel);
 		panel.setLayout(null);
 		
@@ -32,7 +32,7 @@ public class LoginScreen {
 		JLabel jbullLabel = new JLabel("jBull");
 		jbullLabel.setBackground(Color.WHITE);
 		jbullLabel.setFont(new Font("SansSerif", Font.PLAIN, 30));
-		jbullLabel.setBounds(133, 182, 58, 33);
+		jbullLabel.setBounds(133, 182, 73, 33);
 		panel.add(jbullLabel);
 		
 		JLabel userLabel = new JLabel("Username");

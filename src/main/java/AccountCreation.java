@@ -56,12 +56,12 @@ public class AccountCreation {
 		
 		lblNewLabel = new JLabel("Account Creation");
 		lblNewLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		lblNewLabel.setBounds(315, 18, 150, 30);
+		lblNewLabel.setBounds(290, 18, 175, 30);
 		panel.add(lblNewLabel);
 		
 		userLabel = new JLabel("Username");
 		userLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		userLabel.setBounds(20, 82, 82, 16);
+		userLabel.setBounds(20, 82, 107, 16);
 		panel.add(userLabel);
 		
 		userField = new JTextField();
@@ -72,7 +72,7 @@ public class AccountCreation {
 		
 		passLabel = new JLabel("Password");
 		passLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		passLabel.setBounds(20, 142, 79, 16);
+		passLabel.setBounds(20, 142, 107, 16);
 		panel.add(passLabel);
 		
 		textField_1 = new JTextField();
@@ -83,7 +83,7 @@ public class AccountCreation {
 		
 		emailLabel = new JLabel("Email");
 		emailLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		emailLabel.setBounds(20, 207, 49, 16);
+		emailLabel.setBounds(20, 207, 82, 16);
 		panel.add(emailLabel);
 		
 		phoneLabel = new JLabel("Phone");
