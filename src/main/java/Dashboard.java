@@ -203,5 +203,11 @@ public class Dashboard {
 				frame.dispose();
 			}
 		});
+		
+		editProfile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ProfileScreen p = new ProfileScreen();
+			}
+		});
 	}
 }

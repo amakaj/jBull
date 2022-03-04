@@ -126,12 +126,4 @@ public class AccountCreation {
 			}
 		});
 	}
-	public static void main(String[] args) {
-		// Schedule jobs for the event-dispatching thread
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				AccountCreation a1 = new AccountCreation();
-			}
-		});
-	}
 }
