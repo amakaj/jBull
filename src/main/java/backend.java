@@ -22,25 +22,18 @@ public class backend extends JFrame
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	
+
+
 	// global variables
 	public static JTextArea top;
 	public static JTextArea leftTop;
 	public static JTextArea center;
 	public static JTextArea leftBottom;
-	
-	//
-	// main method starts here
-	//
-	public static void main(String[] args)
-	{
-		backend frame = new backend();
-		frame.setVisible(true);
-	}
 
-	
-	
+
+
+
+
 	//
 	// constructor
 	//
@@ -55,29 +48,27 @@ public class backend extends JFrame
 		{
 			el.printStackTrace();
 		}
-		
+
 		String titleString = "JBull Backend   :   Rel Date  :  Mar 3, 2022       " +
-	                   "IP : " + ipAddress.getHostAddress() + "     Port# : 3333";
+				"IP : " + ipAddress.getHostAddress() + "     Port# : 3333";
 		setTitle(titleString);
-		
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		
+		setVisible(true);
+
 		//
 		// set the Frame size
 		//
 		setSize(1020, 900);
-		
+
 		//
 		// panel title
 		//
 		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new TitledBorder(new EtchedBorder(), "JBull Rev.1 JAVA Swing"));
-		
-		
+
+
 		setContentPane(contentPane);
-		
-		
 		//
 		// TOP - available text area - has the real-time clock display for now
 		//
@@ -87,12 +78,12 @@ public class backend extends JFrame
 		top.setBorder(new EtchedBorder(EtchedBorder.RAISED));
 		top.setBackground(Color.WHITE);
 		contentPane.add(top);
-		
+
 		//
 		// LEFT - available text area
 		//
 		leftTop = new JTextArea();
-		leftTop.setAlignmentX(Component.LEFT_ALIGNMENT);
+		leftTop.setAlignmentX(LEFT_ALIGNMENT);
 		leftTop.setEditable(false);
 		leftTop.setBounds(15, 120, 261, 251);
 		leftTop.setBorder(new EtchedBorder(EtchedBorder.RAISED));
@@ -101,7 +92,7 @@ public class backend extends JFrame
 		leftTop.setEditable(false);
 		leftTop.setText("REVENUE: \n");
 		leftTop.append("STOCK PRICES"); 
-	
+
 
 		//
 		// main area for socket server to display messages
@@ -115,8 +106,8 @@ public class backend extends JFrame
 		center.setEditable(false);
 		center.setText("BUY/SELL INFORMATION \n");
 		center.append("USERS: username, ssn, type, amount"); 
-	
-		
+
+
 		//
 		// RIGHT - available text
 		//
@@ -128,7 +119,7 @@ public class backend extends JFrame
 		contentPane.add(leftBottom);
 		leftBottom.setText("USERS: \n");
 		leftBottom.append("First Name Last Name username");
-		
+
 		//
 		// define all BUTTONS
 		//
@@ -140,14 +131,14 @@ public class backend extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				int result = JOptionPane.showConfirmDialog(null,
-						     "Do you really want to exit the Socket Server?",
-						     "JBull Socket Server Backend",
-						     JOptionPane.INFORMATION_MESSAGE);
-				
+						"Do you really want to exit the Socket Server?",
+						"JBull Socket Server Backend",
+						JOptionPane.INFORMATION_MESSAGE);
+
 				if (result == JOptionPane.OK_OPTION)
 				{
 					// socketServer.writeHashTableData();
-					
+
 					dispose();
 					System.exit(0);
 				}		
@@ -155,11 +146,11 @@ public class backend extends JFrame
 		});
 		exitButton.setBounds(6, 687, 187, 58);;
 		contentPane.add(exitButton);;
-		
-		
-		
-		
-		
+
+
+
+
+
 		//JButton clients = new JButton("Clients");
 		//clients.setOnAction(new EventHandler<ActionEvent>()
 		//{
@@ -169,9 +160,9 @@ public class backend extends JFrame
 		//
 		//	}
 		//});
-		
-		
-		
+
+
+
 		//JButton showLog = new JButton("Show Log");
 		//showLog.setOnAction(new EventHandler<ActionEvent>()
 		//{
@@ -223,10 +214,10 @@ public class backend extends JFrame
 		//		    });	
 		//	}
 		//});
-		
-		
-		
-		
+
+
+
+
 		//JButton summary = new JButton("Summary");
 		//summary.setOnAction(new EventHandler<ActionEvent>()
 		//{
@@ -236,11 +227,11 @@ public class backend extends JFrame
 		//
 		//	}
 		//});
-		
-		
-		
-		
-		
+
+
+
+
+
 		//JButton newKiosk = new JButton("New Kiosk");
 		//newKiosk.setOnAction(new EventHandler<ActionEvent>()
 		//{
@@ -264,9 +255,9 @@ public class backend extends JFrame
 		//		    });	
 		//	}
 		//});
-		
-		
-		
+
+
+
 		//JButton query1 = new JButton("Query #1");
 		//query1.setOnAction(new EventHandler<ActionEvent>()
 		//{
@@ -276,10 +267,10 @@ public class backend extends JFrame
 		//
 		//	}
 		//});
-		
-		
-		
-		
+
+
+
+
 		//JButton query2 = new JButton("Query #2");
 		//query2.setOnAction(new EventHandler<ActionEvent>()
 		//{
@@ -289,14 +280,14 @@ public class backend extends JFrame
 		//
 		//	}
 		//});
-		
-		
-		
-		
 
-	
-		
-		
+
+
+
+
+
+
+
 		//JButton helpButton = new JButton("HELP");
 		//helpButton.setOnAction(new EventHandler<ActionEvent>()
 		//{
@@ -322,34 +313,34 @@ public class backend extends JFrame
 		//		    });
 		//	}
 		//});		
-		
-		
-		
+
+
+
 		// start all threads  for the GUI screen here
 		startRealTimeClock();
-		
-		
-		
-		
-		
+
+
+
+
+
 		// start the socket server thread - will start to accept client connections
 		startSockServer();
-		
-		
-		
-		
-		
+
+
+
+
+
 		//
 		// lights, camera, action
 		//
 		contentPane.setLayout (null);
-		
+
 		JScrollPane scrollPane = new JScrollPane(leftTop);
 		scrollPane.setBounds(15, 120, 261, 251);
 		contentPane.add(scrollPane);
-		
+
 		this.setLocationRelativeTo(leftTop);
-		
+
 		JTextArea textArea = new JTextArea();
 		textArea.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		textArea.setBackground(Color.LIGHT_GRAY);
@@ -358,7 +349,7 @@ public class backend extends JFrame
 		textArea.setEditable(false);
 		textArea.setText("USER GROWTH \n");
 		textArea.append("USERS: username"); 
-		
+
 		JTextArea textArea_1 = new JTextArea();
 		textArea_1.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		textArea_1.setBackground(Color.LIGHT_GRAY);
@@ -369,54 +360,62 @@ public class backend extends JFrame
 		textArea_1.append("STOCK SYMBOLS, PRICES"); 
 	}
 
-	
-  /*
-   * Thread to update weather info for NYC and Boston    
-   */     
-  private void startSockServer()
-  {	
-	 Thread refreshWeatherThread = new Thread()
-	 {
-	    public void run()
-		  { 	
-			 //  socketServer.runSockServer();
-	      }
-	 };
 
-    refreshWeatherThread.start();
-  }
-	
-  
-  /*
-   * Thread to update real-time clock
-   */     
-  private void startRealTimeClock()
-  {	
-	   Thread refreshClock = new Thread()
-	   {
-		  public void run()
-		  {  
-			 while (true)
-			 {	 			      
-				   Date   date = new Date();
-				   String str = String.format("\n    %tc", date);
-					 
-				   top.setText("");
-				   top.setText(str);
-				   
-			    	try
-				    {
-					   sleep(1000L);
-				    }
-				    catch (InterruptedException e)
-				   {
-					   // TODO Auto-generated catch block
-					  e.printStackTrace ();
-				   }
-             } // end while true
-	     }
-	  };
+	/*
+	 * Thread to update weather info for NYC and Boston    
+	 */     
+	private void startSockServer()
+	{	
+		Thread refreshWeatherThread = new Thread()
+		{
+			public void run()
+			{ 	
+				//  socketServer.runSockServer();
+			}
+		};
 
-    refreshClock.start();
-  }
+		refreshWeatherThread.start();
+	}
+
+
+	/*
+	 * Thread to update real-time clock
+	 */     
+	private void startRealTimeClock()
+	{	
+		Thread refreshClock = new Thread()
+		{
+			public void run()
+			{  
+				while (true)
+				{	 			      
+					Date   date = new Date();
+					String str = String.format("\n    %tc", date);
+
+					top.setText("");
+					top.setText(str);
+
+					try
+					{
+						sleep(1000L);
+					}
+					catch (InterruptedException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace ();
+					}
+				} // end while true
+			}
+		};
+
+		refreshClock.start();
+	}
+
+	//
+	// main method starts here
+	//
+	public static void main(String[] args)
+	{
+		backend b1 = new backend();
+	}
 }
