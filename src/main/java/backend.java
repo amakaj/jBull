@@ -31,9 +31,6 @@ public class backend extends JFrame
 	public static JTextArea leftBottom;
 
 
-
-
-
 	//
 	// constructor
 	//

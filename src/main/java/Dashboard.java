@@ -2,14 +2,101 @@ package main.java;
 
 import javax.swing.*;
 import java.awt.*;
-
 import java.util.Date;
-
 import javax.swing.border.MatteBorder;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.io.*;
+import java.net.*;
 
 public class Dashboard {
+	//SOCKET SERVER CODE
+	Socket clientSocket = null;
+	DataOutputStream outToServer = null;
+	BufferedReader inFromServer = null;
+
+	public boolean socketConnect(String inputIPAdr) {
+		String ipAddress, portString;
+		int portNumber;
+		boolean rc = false;
+
+		try {
+			File file = new File("config.txt");
+			if (file.exists()) {
+				BufferedReader br = new BufferedReader(new FileReader("config.txt"));
+
+				ipAddress = br.readLine();
+				portString = br.readLine();
+				portNumber = Integer.parseInt(portString);
+				br.close();
+			} else {
+				ipAddress = inputIPAdr; // 127.0.0.1 and "localhost" aren't working
+				portNumber = 3333;
+			}
+
+			clientSocket = new Socket(ipAddress, portNumber);
+
+			outToServer = new DataOutputStream(clientSocket.getOutputStream());
+			inFromServer = new BufferedReader(
+					new InputStreamReader(clientSocket.getInputStream()));
+
+			rc = true;
+		} catch (ConnectException ex) {
+			ex.printStackTrace();
+			return false;
+		} catch (UnknownHostException ex) {
+			ex.printStackTrace();
+			return false;
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			return false;
+		}
+
+		return rc;
+	}
+
+	public boolean sendMessage(String msg) {
+		boolean rc = false;
+
+		try {
+			outToServer.writeBytes(msg + "\r\n");
+			rc = true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return rc;
+	}
+
+	public String recvMessage() {
+		String msg = null;
+
+		try {
+			msg = inFromServer.readLine();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return msg;
+	}
+
+	public boolean closeSocket() {
+		boolean rc = false;
+
+		try {
+			clientSocket.close();
+
+			rc = true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return rc;
+	}
+	
 	// Menu bar must be accessible to all methods
 	JMenuBar menubar = new JMenuBar();
 	private JTable table;
@@ -71,10 +158,10 @@ public class Dashboard {
 		Font font = new Font("Courier", Font.BOLD, 15);
 
 		JLabel stock_image = new JLabel(stock);
-		stock_image.setBounds(0, 0, 550, 500);
-		portfolio.setBounds(25, 15, 100, 50);
+		stock_image.setBounds(0, 36, 540, 500);
+		portfolio.setBounds(25, 51, 515, 50);
 		portfolio.setFont(font);
-		amount.setBounds(460, 15, 125, 50);
+		amount.setBounds(460, 51, 80, 50);
 		amount.setFont(font);
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(null);
@@ -84,6 +171,25 @@ public class Dashboard {
 		panel1.add(portfolio);
 		panel1.add(amount);
 		frame.getContentPane().add(panel1);
+		
+		JButton genericServerBtn = new JButton("Communicate with generic server");
+		genericServerBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				boolean connectedToSocket = socketConnect("10.101.10.74");
+				
+				if (connectedToSocket) {
+					boolean messageSent = sendMessage("Stock>AAPL");
+					
+					if (messageSent) {
+						System.out.println(recvMessage());
+						sendMessage("QUIT");
+						closeSocket();
+					}
+				}
+			}
+		});
+		genericServerBtn.setBounds(25, 17, 220, 23);
+		panel1.add(genericServerBtn);
 
 		// List panel, which will display the stocks owned and the watchlist
 		JPanel panel2 = new JPanel();
