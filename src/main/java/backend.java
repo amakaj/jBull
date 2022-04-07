@@ -2,9 +2,7 @@ package main.java;
 
 import java.awt.*;
 import java.util.Date;
-
 import javax.swing.*;
-import com.jgoodies.forms.factories.DefaultComponentFactory;
 import javax.swing.border.LineBorder;
 
 public class Backend
@@ -34,6 +32,14 @@ public class Backend
 		startClockThread.start();
 	}
 	
+	private void startServer() {
+		Thread startServerThread = new Thread() {
+			public void run() {
+				
+			}
+		};
+	}
+	
 	public Backend()
 	{
 		//Frame Creation
@@ -46,13 +52,13 @@ public class Backend
 		JPanel leftPanel = new JPanel();
 		leftPanel.setBackground(Color.WHITE);
 		leftPanel.setForeground(Color.WHITE);
-		leftPanel.setBounds(0, 0, 300, 429);
+		leftPanel.setBounds(0, 0, 300, 500);
 		frame.getContentPane().add(leftPanel);
 		
 		JPanel rightPanel = new JPanel();
 		rightPanel.setForeground(Color.WHITE);
 		rightPanel.setBackground(Color.WHITE);
-		rightPanel.setBounds(300, 0, 500, 429);
+		rightPanel.setBounds(300, 0, 500, 500);
 		frame.getContentPane().add(rightPanel);
 		rightPanel.setLayout(null);
 		
@@ -95,22 +101,23 @@ public class Backend
 		rightPanel.add(stocklist);
 		
 		JLabel watchlistLabel = new JLabel("Watchlist");
-		watchlistLabel.setFont(new Font("Calibri", Font.BOLD, 20));
+		watchlistLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		watchlistLabel.setBounds(23, 8, 107, 20);
 		rightPanel.add(watchlistLabel);
 		
 		JLabel stocklistLabel = new JLabel("Stocks");
-		stocklistLabel.setFont(new Font("Calibri", Font.BOLD, 20));
+		stocklistLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		stocklistLabel.setBounds(247, 8, 88, 20);
 		rightPanel.add(stocklistLabel);
 		
 		JTextArea textArea = new JTextArea();
+		textArea.setEditable(false);
 		textArea.setBorder(new LineBorder(new Color(0, 0, 0), 2));
 		textArea.setBounds(23, 186, 434, 217);
 		rightPanel.add(textArea);
 		
 		JLabel responseConsoleLabel = new JLabel("Response Console");
-		responseConsoleLabel.setFont(new Font("Calibri", Font.BOLD, 20));
+		responseConsoleLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		responseConsoleLabel.setBounds(23, 170, 197, 20);
 		rightPanel.add(responseConsoleLabel);
 		
@@ -135,10 +142,10 @@ public class Backend
 		
 		JLabel blueSwooshLabel = new JLabel(blueSwooshIcon);
 		leftPanel.add(blueSwooshLabel);
-		blueSwooshLabel.setBounds(-5, 285, 290, 149);
+		blueSwooshLabel.setBounds(-5, 300, 290, 149);
 		
 		JList userList = new JList();
-		userList.setFont(new Font("Calibri", Font.PLAIN, 16));
+		userList.setFont(new Font("Arial", Font.PLAIN, 14));
 		userList.setRequestFocusEnabled(false);
 		userList.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 		userList.setBorder(new LineBorder(new Color(0, 0, 0), 2));
@@ -156,13 +163,14 @@ public class Backend
 		leftPanel.add(userList);
 		
 		JLabel usersLabel = new JLabel("Users");
-		usersLabel.setFont(new Font("Calibri", Font.BOLD, 20));
+		usersLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		usersLabel.setBounds(30, 29, 74, 20);
 		leftPanel.add(usersLabel);
 		
 		JLabel lblTotal = new JLabel("Total: 7");
-		lblTotal.setFont(new Font("Calibri", Font.BOLD, 20));
-		lblTotal.setBounds(203, 29, 74, 20);
+		lblTotal.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblTotal.setFont(new Font("Arial", Font.BOLD, 16));
+		lblTotal.setBounds(179, 29, 91, 20);
 		leftPanel.add(lblTotal);
 		
 		startClock();
