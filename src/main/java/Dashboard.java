@@ -178,7 +178,7 @@ public class Dashboard {
 				boolean connectedToSocket = socketConnect("10.101.10.74");
 				
 				if (connectedToSocket) {
-					boolean messageSent = sendMessage("Stock>AAPL");
+					boolean messageSent = sendMessage("Hi from WeBull!");
 					
 					if (messageSent) {
 						System.out.println(recvMessage());
@@ -188,7 +188,7 @@ public class Dashboard {
 				}
 			}
 		});
-		genericServerBtn.setBounds(25, 17, 220, 23);
+		genericServerBtn.setBounds(25, 17, 271, 23);
 		panel1.add(genericServerBtn);
 
 		// List panel, which will display the stocks owned and the watchlist
