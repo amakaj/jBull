@@ -2,12 +2,24 @@ package main.java;
 
 import java.awt.*;
 import java.util.Date;
+import java.util.Enumeration;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+
+import java.net.*;
+import java.io.*;
 
 public class Backend
 {
 	JMenuBar servermenubar = new JMenuBar();
+	static JTextArea responseConsole = new JTextArea();
+	
+	//Server socket variables
+	private static ServerSocket serverSocket;
+	private static Socket clientSocket;
+	private static PrintWriter out;
+	private static BufferedReader in;
 	
 	private void startClock() {
 		Thread startClockThread = new Thread() {
@@ -32,13 +44,45 @@ public class Backend
 		startClockThread.start();
 	}
 	
-	private void startServer() {
-		Thread startServerThread = new Thread() {
+	
+	public static void startServer(int portNum) {
+		Thread serverThread = new Thread() {
 			public void run() {
+				String serverIPAddress;
+				String responseConsoleText = null;
 				
+				try {
+					serverIPAddress = (InetAddress.getLocalHost()).getHostAddress();
+					responseConsoleText = ("IP Address is: " + serverIPAddress);
+					responseConsole.setText(responseConsoleText + "\nWaiting for connection on port " + portNum);
+
+					serverSocket = new ServerSocket(portNum);					
+					clientSocket = serverSocket.accept();
+					out = new PrintWriter(clientSocket.getOutputStream(), true);
+					in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+					
+					responseConsole.setText(responseConsoleText + "\nClient connected from " + (clientSocket.getInetAddress()).getHostAddress() + "\nMessage: " + in.readLine());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		};
+		serverThread.start();
 	}
+	
+//	public static void stopServer() {
+//		try {
+//			in.close();
+//			out.close();
+//			clientSocket.close();
+//			serverSocket.close();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//	}
 	
 	public Backend()
 	{
@@ -110,15 +154,14 @@ public class Backend
 		stocklistLabel.setBounds(247, 8, 88, 20);
 		rightPanel.add(stocklistLabel);
 		
-		JTextArea textArea = new JTextArea();
-		textArea.setEditable(false);
-		textArea.setBorder(new LineBorder(new Color(0, 0, 0), 2));
-		textArea.setBounds(23, 186, 434, 217);
-		rightPanel.add(textArea);
+		responseConsole.setEditable(false);
+		responseConsole.setBorder(new LineBorder(new Color(0, 0, 0), 2));
+		responseConsole.setBounds(23, 186, 434, 217);
+		rightPanel.add(responseConsole);
 		
 		JLabel responseConsoleLabel = new JLabel("Response Console");
 		responseConsoleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-		responseConsoleLabel.setBounds(23, 170, 197, 20);
+		responseConsoleLabel.setBounds(23, 167, 197, 20);
 		rightPanel.add(responseConsoleLabel);
 		
 		// Set the menu bar
@@ -174,6 +217,7 @@ public class Backend
 		leftPanel.add(lblTotal);
 		
 		startClock();
+		startServer(3333);
 	
 		frame.setVisible(true);
 	}

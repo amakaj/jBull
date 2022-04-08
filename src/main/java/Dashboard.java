@@ -102,6 +102,7 @@ public class Dashboard {
 	private JTable table;
 	private JTable table_1;
 	private JTable table_2;
+	private JTextField serverMessageField;
 
 	// Takes button as parameter to match the style of the menu bar
 	private void changeButtonStyle(JButton button) {
@@ -172,23 +173,32 @@ public class Dashboard {
 		panel1.add(amount);
 		frame.getContentPane().add(panel1);
 		
-		JButton genericServerBtn = new JButton("Communicate with generic server");
+		serverMessageField = new JTextField();
+		serverMessageField.setBounds(25, 20, 255, 20);
+		panel1.add(serverMessageField);
+		serverMessageField.setColumns(10);
+		
+		JButton genericServerBtn = new JButton("Send message to server");
 		genericServerBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				boolean connectedToSocket = socketConnect("10.101.10.74");
-				
-				if (connectedToSocket) {
-					boolean messageSent = sendMessage("Hi from WeBull!");
-					
-					if (messageSent) {
-						System.out.println(recvMessage());
-						sendMessage("QUIT");
-						closeSocket();
+				Thread clientSocketThread = new Thread() {
+					public void run() {
+						boolean connectedToSocket = socketConnect("192.168.1.157");
+						if (connectedToSocket) {
+							boolean messageSent = sendMessage(serverMessageField.getText());
+							
+							if (messageSent) {
+								System.out.println(recvMessage());
+								sendMessage("QUIT");
+								closeSocket();
+							}
+						}
 					}
-				}
+				};
+				clientSocketThread.start();
 			}
 		});
-		genericServerBtn.setBounds(25, 17, 271, 23);
+		genericServerBtn.setBounds(290, 17, 216, 23);
 		panel1.add(genericServerBtn);
 
 		// List panel, which will display the stocks owned and the watchlist
