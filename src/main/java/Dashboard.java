@@ -14,25 +14,17 @@ public class Dashboard {
 	Socket clientSocket = null;
 	DataOutputStream outToServer = null;
 	BufferedReader inFromServer = null;
+	public boolean connectedToSocket;
 
+	
 	public boolean socketConnect(String inputIPAdr) {
 		String ipAddress, portString;
 		int portNumber;
 		boolean rc = false;
 
 		try {
-			File file = new File("config.txt");
-			if (file.exists()) {
-				BufferedReader br = new BufferedReader(new FileReader("config.txt"));
-
-				ipAddress = br.readLine();
-				portString = br.readLine();
-				portNumber = Integer.parseInt(portString);
-				br.close();
-			} else {
-				ipAddress = inputIPAdr; // 127.0.0.1 and "localhost" aren't working
-				portNumber = 3333;
-			}
+			ipAddress = inputIPAdr; // 127.0.0.1 and "localhost" aren't working
+			portNumber = 3333;
 
 			clientSocket = new Socket(ipAddress, portNumber);
 
@@ -81,13 +73,12 @@ public class Dashboard {
 
 		return msg;
 	}
-
+/*
 	public boolean closeSocket() {
 		boolean rc = false;
 
 		try {
 			clientSocket.close();
-
 			rc = true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -96,6 +87,7 @@ public class Dashboard {
 
 		return rc;
 	}
+	*/
 	
 	// Menu bar must be accessible to all methods
 	JMenuBar menubar = new JMenuBar();
@@ -174,32 +166,61 @@ public class Dashboard {
 		frame.getContentPane().add(panel1);
 		
 		serverMessageField = new JTextField();
-		serverMessageField.setBounds(25, 20, 255, 20);
+		serverMessageField.setBounds(25, 20, 210, 20);
 		panel1.add(serverMessageField);
 		serverMessageField.setColumns(10);
 		
-		JButton genericServerBtn = new JButton("Send message to server");
-		genericServerBtn.addActionListener(new ActionListener() {
+		JButton connectBtn = new JButton("Connect");
+		connectBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Thread clientSocketThread = new Thread() {
+				Thread connectThread = new Thread() {
 					public void run() {
-						boolean connectedToSocket = socketConnect("192.168.1.157");
 						if (connectedToSocket) {
-							boolean messageSent = sendMessage(serverMessageField.getText());
-							
-							if (messageSent) {
-								System.out.println(recvMessage());
-								sendMessage("QUIT");
-								closeSocket();
+							try {
+								clientSocket.close();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							if (clientSocket.isClosed()) {
+								connectBtn.setText("Connect");
+								currentThread().interrupt();
+							}
+						} else {
+							connectedToSocket = socketConnect("192.168.1.157");
+							if (!connectedToSocket) {
+								connectBtn.setText("Failed to connect");
+								try {
+									Thread.sleep(1000);
+								} catch (InterruptedException ie) {
+									// TODO Auto-generated catch block
+									ie.printStackTrace();
+								}
+								connectBtn.setText("Connect");
+							} else {
+								connectBtn.setText("Connected");
 							}
 						}
 					}
 				};
-				clientSocketThread.start();
+				connectThread.start();
 			}
 		});
-		genericServerBtn.setBounds(290, 17, 216, 23);
-		panel1.add(genericServerBtn);
+		connectBtn.setBounds(247, 17, 161, 23);
+		panel1.add(connectBtn);
+		
+
+		
+		JButton sendMsgBtn = new JButton("Send message");
+		sendMsgBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (connectedToSocket) {
+					sendMessage(serverMessageField.getText());
+				}
+			}
+		});
+		sendMsgBtn.setBounds(411, 16, 133, 23);
+		panel1.add(sendMsgBtn);
 
 		// List panel, which will display the stocks owned and the watchlist
 		JPanel panel2 = new JPanel();
@@ -326,4 +347,8 @@ public class Dashboard {
 			}
 		});
 	}
+	public static void main(String[] args) {
+		Dashboard d = new Dashboard();
+	}
+	
 }

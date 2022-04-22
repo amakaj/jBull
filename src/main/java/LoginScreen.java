@@ -79,8 +79,9 @@ public class LoginScreen {
 		//ACTION LISTENERS
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				loginFrame.setVisible(false);
+				Backend b = new Backend();
 				Dashboard d1 = new Dashboard();
+				loginFrame.setVisible(false);
 				loginFrame.dispose();
 			}
 		});
