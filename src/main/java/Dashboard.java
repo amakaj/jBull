@@ -71,7 +71,11 @@ public class Dashboard {
 					}
 				} else {*/
 			public void run() {
-				connectedToSocket = socketConnect(inputAddr, inputPort);
+				if (!connectedToSocket) {
+					connectedToSocket = socketConnect(inputAddr, inputPort);
+				} else {
+					return;
+				}
 			}
 		};
 		connectThread.start();

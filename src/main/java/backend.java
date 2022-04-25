@@ -42,9 +42,14 @@ public class Backend
 		Thread serverThread = new Thread() {
 			public void run() {
 				String receivedString = "";
+				String clientNumber;
 				try {
 					BufferedReader in = new BufferedReader(new InputStreamReader(inputSocket.getInputStream()));
-					String clientNumber = (currentThread().getName()).substring((currentThread().getName()).length()-1);
+					if ((currentThread().getName()).substring((currentThread().getName()).length()-2).contains("-")) {
+						clientNumber = (currentThread().getName()).substring((currentThread().getName()).length()-1);
+					} else {
+						clientNumber = (currentThread().getName()).substring((currentThread().getName()).length()-2);
+					}
 					listOfConnections.put(Integer.valueOf(clientNumber), (inputSocket.getInetAddress()).toString().substring(1));
 
 					updateConnectionList();
