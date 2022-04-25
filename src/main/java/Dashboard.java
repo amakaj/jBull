@@ -8,29 +8,23 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.net.*;
+import java.awt.event.*;
 
 public class Dashboard {
 	//SOCKET SERVER CODE
 	Socket clientSocket = null;
 	DataOutputStream outToServer = null;
 	BufferedReader inFromServer = null;
-	public boolean connectedToSocket;
+	public static boolean connectedToSocket;
 
-	
-	public boolean socketConnect(String inputIPAdr) {
-		String ipAddress, portString;
-		int portNumber;
+	public boolean socketConnect(String inputIPAdr, int inputPort) {
 		boolean rc = false;
-
 		try {
-			ipAddress = inputIPAdr; // 127.0.0.1 and "localhost" aren't working
-			portNumber = 3333;
-
-			clientSocket = new Socket(ipAddress, portNumber);
+			// 127.0.0.1 and "localhost" aren't working
+			clientSocket = new Socket(inputIPAdr, inputPort);
 
 			outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			inFromServer = new BufferedReader(
-					new InputStreamReader(clientSocket.getInputStream()));
+			inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
 			rc = true;
 		} catch (ConnectException ex) {
@@ -73,22 +67,29 @@ public class Dashboard {
 
 		return msg;
 	}
-/*
-	public boolean closeSocket() {
-		boolean rc = false;
 
-		try {
-			clientSocket.close();
-			rc = true;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void createClientThread(String inputAddr, int inputPort) {
+		Thread connectThread = new Thread() {
+			/* old code to check if client was connected
 
-		return rc;
+				if (connectedToSocket) {
+					try {
+						clientSocket.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					if (clientSocket.isClosed()) {
+						connectBtn.setText("Connect");
+						currentThread().interrupt();
+					}
+				} else {*/
+			public void run() {
+				connectedToSocket = socketConnect(inputAddr, inputPort);
+			}
+		};
+		connectThread.start();
 	}
-	*/
-	
+
 	// Menu bar must be accessible to all methods
 	JMenuBar menubar = new JMenuBar();
 	private JTable table;
@@ -124,7 +125,7 @@ public class Dashboard {
 		};
 		startClockThread.start();
 	}
-	
+
 	/*
 	 * Method invoked from the event-dispatching thread (EDT) for thread-safety,
 	 * since oftentimes Java Swing elements are not thread-safe
@@ -137,7 +138,7 @@ public class Dashboard {
 		frame.setSize(900, 600);
 		frame.setResizable(false);
 		frame.getContentPane().setLayout(null);
-		
+
 		// Display the window
 		frame.setVisible(true);
 
@@ -145,7 +146,7 @@ public class Dashboard {
 
 		ImageIcon stock = new ImageIcon(
 				new ImageIcon(getClass().getResource("/main/resources/Stock_Graph.jpeg")).getImage()
-						.getScaledInstance(500, 400, Image.SCALE_DEFAULT));
+				.getScaledInstance(500, 400, Image.SCALE_DEFAULT));
 		JLabel portfolio = new JLabel("Portfolio: ");
 		JLabel amount = new JLabel("$298.34");
 		Font font = new Font("Courier", Font.BOLD, 15);
@@ -164,53 +165,21 @@ public class Dashboard {
 		panel1.add(portfolio);
 		panel1.add(amount);
 		frame.getContentPane().add(panel1);
-		
+
 		serverMessageField = new JTextField();
 		serverMessageField.setBounds(25, 20, 210, 20);
 		panel1.add(serverMessageField);
 		serverMessageField.setColumns(10);
-		
+
 		JButton connectBtn = new JButton("Connect");
 		connectBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Thread connectThread = new Thread() {
-					public void run() {
-						if (connectedToSocket) {
-							try {
-								clientSocket.close();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							if (clientSocket.isClosed()) {
-								connectBtn.setText("Connect");
-								currentThread().interrupt();
-							}
-						} else {
-							connectedToSocket = socketConnect("192.168.1.157");
-							if (!connectedToSocket) {
-								connectBtn.setText("Failed to connect");
-								try {
-									Thread.sleep(1000);
-								} catch (InterruptedException ie) {
-									// TODO Auto-generated catch block
-									ie.printStackTrace();
-								}
-								connectBtn.setText("Connect");
-							} else {
-								connectBtn.setText("Connected");
-							}
-						}
-					}
-				};
-				connectThread.start();
+				createClientThread("192.168.1.157", 3333);
 			}
 		});
 		connectBtn.setBounds(247, 17, 161, 23);
 		panel1.add(connectBtn);
-		
 
-		
 		JButton sendMsgBtn = new JButton("Send message");
 		sendMsgBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -284,7 +253,7 @@ public class Dashboard {
 
 		ImageIcon profileIcon = new ImageIcon(
 				new ImageIcon(getClass().getResource("/main/resources/profile.png")).getImage()
-						.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
+				.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
 
 		// Set the icon image for the frame
 		frame.setIconImage(bullIcon.getImage());
@@ -325,14 +294,14 @@ public class Dashboard {
 		menubar.add(profileName);
 		menubar.add(profileIconLabel);
 		startClock();
-		
+
 		//ACTION LISTENERS
 		news.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				News n1 = new News();
 			}
 		});
-		
+
 		logout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.setVisible(false);
@@ -340,15 +309,33 @@ public class Dashboard {
 				frame.dispose();
 			}
 		});
-		
+
 		editProfile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ProfileScreen p = new ProfileScreen();
 			}
 		});
+
+		/* not working
+		frame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				if (clientSocket.isConnected() && clientSocket != null) {
+					try {
+						clientSocket.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+
+				frame.dispose();
+				System.exit(0);
+			}
+		});
+	}
+		 */
 	}
 	public static void main(String[] args) {
 		Dashboard d = new Dashboard();
 	}
-	
 }

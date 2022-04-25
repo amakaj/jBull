@@ -1,6 +1,7 @@
 package main.java;
 
 import java.awt.*;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -18,12 +19,15 @@ public class Backend
 	static String connectionInformation;
 	static String stringOfMessages = "";
 	static int numOfConnections = 0;
+	static String serverIP;
+	static String portAndIPInfo;
+	static boolean found = false;
 
 	//Server socket variables
-//	private static ServerSocket serverSocket;
-//	private static Socket clientSocket;
-//	private static PrintWriter out;
-//	private static BufferedReader in;
+	//	private static ServerSocket serverSocket;
+	//	private static Socket clientSocket;
+	//	private static PrintWriter out;
+	//	private static BufferedReader in;
 
 	public static void startServerThread(Socket inputSocket)  {
 		Thread serverThread = new Thread() {
@@ -32,15 +36,19 @@ public class Backend
 
 				try {
 					BufferedReader in = new BufferedReader(new InputStreamReader(inputSocket.getInputStream()));
-				
+					String clientNumber = (currentThread().getName()).substring((currentThread().getName()).length()-1);
+
 					while (true) {
-						if (inputSocket.isClosed()) {
+						if (inputSocket.getInputStream().read() == -1 || (in.readLine()).equals("QUIT")) {
+							stringOfMessages += "\nClient #" + clientNumber + " disconnected";
 							numOfConnections--;
+							connectionInformation = portAndIPInfo + "\nNumber of Connections: " + numOfConnections;
+							responseConsole.setText(connectionInformation + stringOfMessages);
 							currentThread().interrupt();
 						}
-						
+
 						receivedString = in.readLine();
-						stringOfMessages += "\nClient #" + (currentThread().getName()).substring((currentThread().getName()).length()-2) + ": " + receivedString;
+						stringOfMessages += "\nClient #" + clientNumber + ": " + receivedString;
 						responseConsole.setText(connectionInformation + stringOfMessages);
 					}
 				} catch (IOException e) {
@@ -56,7 +64,7 @@ public class Backend
 		serverThread.start();
 	}
 
-	
+
 	private void startClock() {
 		Thread startClockThread = new Thread() {
 			public void run() {
@@ -79,7 +87,7 @@ public class Backend
 		};
 		startClockThread.start();
 	}
-/*
+	/*
 	public static void stopServer() {
 		try {
 			responseConsole.setText(responseConsole.getText() + "\nConnection closed");
@@ -94,28 +102,58 @@ public class Backend
 	}*/
 
 	public static void startServer(int portNum) {
-		InetAddress serverIP;
-		InetAddress clientIP = null;
+		Socket clientSocket;
+		ServerSocket servSocket;
+		InetAddress socketAddr;
 
-		Socket communicationSocket;
-		ServerSocket listeningSocket;
+		//Enumeration and Network interfaces code
+		Enumeration<NetworkInterface> nets = null;
+		try {
+			nets = NetworkInterface.getNetworkInterfaces();
+		} catch (SocketException e1) {
+			e1.printStackTrace();
+		}
+
+		for (NetworkInterface netint: Collections.list(nets)) {
+			String dname = netint.getName();
+			if (dname.startsWith("en") && !found) {
+				Enumeration<InetAddress> inetAddresses = netint.getInetAddresses();
+
+				int counter = 0;
+				for (InetAddress inetAddress: Collections.list(inetAddresses)) {
+					String myAddr = inetAddress.toString();
+					myAddr = myAddr.replaceFirst("/", "");
+					if (counter != 0) {
+						serverIP = myAddr;
+						found = true;
+					}
+					counter++;
+				}
+			}
+		}
+
 
 		try {
-			serverIP = InetAddress.getLocalHost();
-			listeningSocket = new ServerSocket(portNum);
-			String portAndIPInfo = ("IP Address is: " + serverIP.getHostAddress() + "\nListening on port " + listeningSocket.getLocalPort());
-
+			if (serverIP == null) {
+				serverIP = InetAddress.getLocalHost().getHostAddress();
+			}
+			socketAddr = InetAddress.getByName(serverIP);
+			servSocket = new ServerSocket(portNum, 50, socketAddr);
+			
+			System.out.println("Socket address: " + socketAddr);
+			System.out.println("Server socket: " + servSocket);
+			
+			portAndIPInfo = ("IP Address is: " + socketAddr.getHostAddress() + "\nListening on port " + servSocket.getLocalPort());
 			responseConsole.setText(portAndIPInfo);
 
 			// Code to listen for client connections
 			while (true) {
-				communicationSocket = listeningSocket.accept(); //Accepts connection
+				clientSocket = servSocket.accept(); //Accepts connection
 				numOfConnections++;
-				connectionInformation = portAndIPInfo + "\nNumber of Connections: " + numOfConnections;
-				responseConsole.setText(connectionInformation + stringOfMessages);
+				
+				responseConsole.setText(portAndIPInfo + stringOfMessages);
 
-				clientIP = communicationSocket.getInetAddress();
-				startServerThread(communicationSocket);
+				startServerThread(clientSocket);
 			}
 		} catch (IOException e) {
 			//Takes stack trace and pushes it to StringWriter
@@ -126,12 +164,6 @@ public class Backend
 			//Print stack trace onto response console
 			responseConsole.setText("ERROR:\n" + sw.toString());
 		}
-
-
-
-
-
-
 
 		/*Thread serverThread = new Thread() {
 			public void run() {
@@ -238,19 +270,35 @@ public class Backend
 
 		responseConsole.setEditable(false);
 		responseConsole.setBorder(new LineBorder(new Color(0, 0, 0), 2));
-		responseConsole.setBounds(23, 186, 434, 217);
+		responseConsole.setBounds(23, 186, 250, 217);
 		rightPanel.add(responseConsole);
-		
-		JScrollPane scroll = new JScrollPane (responseConsole);
-		scroll.setLocation(23, 186);
-		scroll.setSize(434, 217);
-	    scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		rightPanel.add(scroll);
+
+		JScrollPane responseConsoleScroll = new JScrollPane (responseConsole);
+		responseConsoleScroll.setLocation(23, 186);
+		responseConsoleScroll.setSize(250, 217);
+		responseConsoleScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		rightPanel.add(responseConsoleScroll);
 
 		JLabel responseConsoleLabel = new JLabel("Response Console");
 		responseConsoleLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		responseConsoleLabel.setBounds(23, 167, 197, 20);
 		rightPanel.add(responseConsoleLabel);
+		
+		JLabel connectionsLabel = new JLabel("Connections");
+		connectionsLabel.setFont(new Font("Arial", Font.BOLD, 16));
+		connectionsLabel.setBounds(283, 167, 126, 20);
+		rightPanel.add(connectionsLabel);
+		
+		JScrollPane connectionsListScroll = new JScrollPane((Component) null);
+		connectionsListScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		connectionsListScroll.setBounds(283, 186, 178, 217);
+		rightPanel.add(connectionsListScroll);
+		
+		JTextArea connectionsList = new JTextArea();
+		connectionsList.setText("No Connections");
+		connectionsList.setEditable(false);
+		connectionsList.setBorder(new LineBorder(new Color(0, 0, 0), 2));
+		connectionsListScroll.setViewportView(connectionsList);
 
 		// Set the menu bar
 		frame.setJMenuBar(servermenubar);
@@ -290,7 +338,7 @@ public class Backend
 				return values[index];
 			}
 		});
-		userList.setBounds(30, 47, 240, 230);
+		userList.setBounds(30, 47, 240, 218);
 		leftPanel.add(userList);
 
 		JLabel usersLabel = new JLabel("Users");
@@ -306,7 +354,7 @@ public class Backend
 
 
 		frame.setVisible(true);
-		
+
 		startClock();
 		startServer(3333);
 	}
