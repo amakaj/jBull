@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -16,40 +17,59 @@ public class Backend
 {
 	JMenuBar servermenubar = new JMenuBar();
 	static JTextArea responseConsole = new JTextArea();
+	static JTextArea connectionsList = new JTextArea();
 	static String connectionInformation;
 	static String stringOfMessages = "";
 	static int numOfConnections = 0;
 	static String serverIP;
 	static String portAndIPInfo;
 	static boolean found = false;
+	static HashMap<Integer, String> listOfConnections = new HashMap<Integer, String>();
+	static String stringOfConnections = "";
 
-	//Server socket variables
-	//	private static ServerSocket serverSocket;
-	//	private static Socket clientSocket;
-	//	private static PrintWriter out;
-	//	private static BufferedReader in;
 
-	public static void startServerThread(Socket inputSocket)  {
+	private static void updateConnectionList() {
+		listOfConnections.forEach((clientnum, ip) -> stringOfConnections += "\nClient #: " + clientnum + "\nIP: " + ip);
+		if (listOfConnections.size() == 0) {
+			connectionsList.setText("No Connections");
+		} else {
+			connectionsList.setText("Number of Connections: " + listOfConnections.size() + stringOfConnections);
+		}
+		stringOfConnections = "";
+	}
+
+	public static void startServerThread(Socket inputSocket) {
 		Thread serverThread = new Thread() {
 			public void run() {
-				String receivedString;
-
+				String receivedString = "";
 				try {
 					BufferedReader in = new BufferedReader(new InputStreamReader(inputSocket.getInputStream()));
 					String clientNumber = (currentThread().getName()).substring((currentThread().getName()).length()-1);
+					listOfConnections.put(Integer.valueOf(clientNumber), (inputSocket.getInetAddress()).toString().substring(1));
+
+					updateConnectionList();
 
 					while (true) {
-						if (inputSocket.getInputStream().read() == -1 || (in.readLine()).equals("QUIT")) {
-							stringOfMessages += "\nClient #" + clientNumber + " disconnected";
-							numOfConnections--;
-							connectionInformation = portAndIPInfo + "\nNumber of Connections: " + numOfConnections;
-							responseConsole.setText(connectionInformation + stringOfMessages);
-							currentThread().interrupt();
-						}
-
 						receivedString = in.readLine();
-						stringOfMessages += "\nClient #" + clientNumber + ": " + receivedString;
-						responseConsole.setText(connectionInformation + stringOfMessages);
+
+						/* Checks if the socket has closed, or if the client sends a "QUIT" which will prompt the server to
+						 * disconnect from the server side
+						 * 
+						 * read() returns -1
+						 * readLine() returns null
+						 * readXXX() throws EOFException for any other XXX.
+						 * A write will throw an IOException: 'connection reset by peer', eventually, subject to buffering delays.
+						 */
+						if (receivedString == null || inputSocket.isClosed() || receivedString.equals("QUIT")) {
+							listOfConnections.remove(Integer.valueOf(clientNumber));
+							inputSocket.close();
+							
+							updateConnectionList();
+							return; // we can exit thread by returning the run function
+						} else { //if the socket has not closed, then we allow for messages to come in
+							stringOfMessages += "\nClient #" + clientNumber + ": " + receivedString;
+							responseConsole.setText(portAndIPInfo + stringOfMessages);
+						}
 					}
 				} catch (IOException e) {
 					StringWriter sw = new StringWriter();
@@ -63,44 +83,7 @@ public class Backend
 		};
 		serverThread.start();
 	}
-
-
-	private void startClock() {
-		Thread startClockThread = new Thread() {
-			public void run() {
-				JLabel serverName = new JLabel("Server     ");
-				JLabel clockLabel = new JLabel("nulltime");
-				servermenubar.add(clockLabel);
-				servermenubar.add(serverName);
-				while (true) {
-					try {
-						Date date = new Date();
-						clockLabel.setText(String.format("    %tr    ", date));
-						// update every second (usually 1 second behind system clock)
-						sleep(1000L);
-					} catch (InterruptedException e) {
-						JOptionPane.showMessageDialog(null, "ERROR: Time is broken!");
-						continue;
-					}
-				}
-			}
-		};
-		startClockThread.start();
-	}
-	/*
-	public static void stopServer() {
-		try {
-			responseConsole.setText(responseConsole.getText() + "\nConnection closed");
-			in.close();
-			out.close();
-			clientSocket.close();
-			serverSocket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}*/
-
+	
 	public static void startServer(int portNum) {
 		Socket clientSocket;
 		ServerSocket servSocket;
@@ -139,20 +122,17 @@ public class Backend
 			}
 			socketAddr = InetAddress.getByName(serverIP);
 			servSocket = new ServerSocket(portNum, 50, socketAddr);
-			
+
 			System.out.println("Socket address: " + socketAddr);
 			System.out.println("Server socket: " + servSocket);
-			
+
 			portAndIPInfo = ("IP Address is: " + socketAddr.getHostAddress() + "\nListening on port " + servSocket.getLocalPort());
 			responseConsole.setText(portAndIPInfo);
 
 			// Code to listen for client connections
 			while (true) {
 				clientSocket = servSocket.accept(); //Accepts connection
-				numOfConnections++;
-				
 				responseConsole.setText(portAndIPInfo + stringOfMessages);
-
 				startServerThread(clientSocket);
 			}
 		} catch (IOException e) {
@@ -164,40 +144,32 @@ public class Backend
 			//Print stack trace onto response console
 			responseConsole.setText("ERROR:\n" + sw.toString());
 		}
-
-		/*Thread serverThread = new Thread() {
-			public void run() {
-				String serverIPAddress;
-				String responseConsoleText = null;
-
-				try {
-					serverIPAddress = (InetAddress.getLocalHost()).getHostAddress();
-					responseConsoleText = ("IP Address is: " + serverIPAddress);
-					responseConsole.setText(responseConsoleText + "\nWaiting for connection on port " + portNum);
-
-					serverSocket = new ServerSocket(portNum);					
-					clientSocket = serverSocket.accept();
-
-					responseConsole.setText("IP Address is: " + serverIPAddress + "\nClient connected from " + (clientSocket.getInetAddress()).getHostAddress());
-
-					out = new PrintWriter(clientSocket.getOutputStream(), true);
-					in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-					String receivedMsg = "";
-
-					while ((receivedMsg = in.readLine()) != null && (receivedMsg != "QUIT")) {
-						responseConsole.setText(responseConsoleText + "\nClient connected from " + (clientSocket.getInetAddress()).getHostAddress() + "\nMessage: " + receivedMsg);
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		};
-		serverThread.start();*/
 	}
 
 
-
+	private void startClock() {
+		Thread startClockThread = new Thread() {
+			public void run() {
+				JLabel serverName = new JLabel("Server     ");
+				JLabel clockLabel = new JLabel("nulltime");
+				servermenubar.add(clockLabel);
+				servermenubar.add(serverName);
+				while (true) {
+					try {
+						Date date = new Date();
+						clockLabel.setText(String.format("    %tr    ", date));
+						// update every second (usually 1 second behind system clock)
+						sleep(1000L);
+					} catch (InterruptedException e) {
+						JOptionPane.showMessageDialog(null, "ERROR: Time is broken!");
+						continue;
+					}
+				}
+			}
+		};
+		startClockThread.start();
+	}
+	
 	public Backend()
 	{
 		//Frame Creation
@@ -283,18 +255,18 @@ public class Backend
 		responseConsoleLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		responseConsoleLabel.setBounds(23, 167, 197, 20);
 		rightPanel.add(responseConsoleLabel);
-		
+
 		JLabel connectionsLabel = new JLabel("Connections");
 		connectionsLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		connectionsLabel.setBounds(283, 167, 126, 20);
 		rightPanel.add(connectionsLabel);
-		
+
 		JScrollPane connectionsListScroll = new JScrollPane((Component) null);
 		connectionsListScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		connectionsListScroll.setBounds(283, 186, 178, 217);
 		rightPanel.add(connectionsListScroll);
-		
-		JTextArea connectionsList = new JTextArea();
+
+		connectionsList = new JTextArea();
 		connectionsList.setText("No Connections");
 		connectionsList.setEditable(false);
 		connectionsList.setBorder(new LineBorder(new Color(0, 0, 0), 2));

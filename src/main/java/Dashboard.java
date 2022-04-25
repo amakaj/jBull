@@ -17,10 +17,11 @@ public class Dashboard {
 	BufferedReader inFromServer = null;
 	public static boolean connectedToSocket;
 
+
 	public boolean socketConnect(String inputIPAdr, int inputPort) {
 		boolean rc = false;
 		try {
-			// 127.0.0.1 and "localhost" aren't working
+			// 127.0.0.1 and localhost aren't working
 			clientSocket = new Socket(inputIPAdr, inputPort);
 
 			outToServer = new DataOutputStream(clientSocket.getOutputStream());
@@ -48,24 +49,10 @@ public class Dashboard {
 			outToServer.writeBytes(msg + "\r\n");
 			rc = true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		return rc;
-	}
-
-	public String recvMessage() {
-		String msg = null;
-
-		try {
-			msg = inFromServer.readLine();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return msg;
 	}
 
 	public void createClientThread(String inputAddr, int inputPort) {
@@ -174,7 +161,7 @@ public class Dashboard {
 		JButton connectBtn = new JButton("Connect");
 		connectBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				createClientThread("192.168.1.157", 3333);
+				createClientThread("192.168.1.153", 3333);
 			}
 		});
 		connectBtn.setBounds(247, 17, 161, 23);
@@ -315,8 +302,7 @@ public class Dashboard {
 				ProfileScreen p = new ProfileScreen();
 			}
 		});
-
-		/* not working
+		
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				if (clientSocket.isConnected() && clientSocket != null) {
@@ -332,8 +318,6 @@ public class Dashboard {
 				System.exit(0);
 			}
 		});
-	}
-		 */
 	}
 	public static void main(String[] args) {
 		Dashboard d = new Dashboard();
