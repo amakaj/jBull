@@ -2,6 +2,9 @@ package main.java;
 
 import java.awt.EventQueue;
 import java.awt.Image;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -23,50 +26,48 @@ import java.awt.FlowLayout;
 
 public class ProfileScreen {
 
-	private JFrame frame;
+	private JFrame profileFrame;
 	private JTextField textField;
 	private JTextField textField_1;
 	private JTextField textField_2;
 	private JTextField textField_3;
 	private JTextField textField_4;
-
-
-
+	
 	/**
 	 * Create the application.
 	 */
 	public ProfileScreen() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 500, 500);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
+		profileFrame = new JFrame();
+		profileFrame.setBounds(100, 100, 500, 500);
+		profileFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		profileFrame.getContentPane().setLayout(null);
 		
 		JLabel pfp_label = new JLabel();
 		pfp_label.setBounds(39, 6, 80, 78);
 		pfp_label.setIcon(new ImageIcon(new ImageIcon(LoginScreen.class.getResource("/main/resources/profile.png")).getImage().getScaledInstance(70, 70, Image.SCALE_DEFAULT)));
-		frame.getContentPane().add(pfp_label);
-		frame.getContentPane().add(pfp_label);
+		profileFrame.getContentPane().add(pfp_label);
+		profileFrame.getContentPane().add(pfp_label);
 		
 		JLabel lblNewLabel_1 = new JLabel("Portfolio Value:");
 		lblNewLabel_1.setBounds(39, 92, 114, 16);
-		frame.getContentPane().add(lblNewLabel_1);
+		profileFrame.getContentPane().add(lblNewLabel_1);
 		
 		JLabel lblNewLabel_1_1 = new JLabel("Buying Power: ");
 		lblNewLabel_1_1.setBounds(39, 120, 114, 16);
-		frame.getContentPane().add(lblNewLabel_1_1);
+		profileFrame.getContentPane().add(lblNewLabel_1_1);
 		
 		JLabel lblNewLabel_2 = new JLabel("$0.00");
 		lblNewLabel_2.setBounds(141, 92, 61, 16);
-		frame.getContentPane().add(lblNewLabel_2);
+		profileFrame.getContentPane().add(lblNewLabel_2);
 		
 		JLabel lblNewLabel_2_1 = new JLabel("$0.00");
 		lblNewLabel_2_1.setBounds(141, 120, 61, 16);
-		frame.getContentPane().add(lblNewLabel_2_1);
+		profileFrame.getContentPane().add(lblNewLabel_2_1);
 		
 		Box verticalBox = Box.createVerticalBox();
 		verticalBox.setBorder(new LineBorder(new Color(0, 0, 0)));
 		verticalBox.setBounds(39, 148, 420, 245);
-		frame.getContentPane().add(verticalBox);
+		profileFrame.getContentPane().add(verticalBox);
 		
 		JLabel lblNewLabel_3 = new JLabel("Contact Information");
 		lblNewLabel_3.setFont(new Font("Lucida Grande", Font.BOLD, 13));
@@ -165,7 +166,7 @@ public class ProfileScreen {
 		Box verticalBox_1 = Box.createVerticalBox();
 		verticalBox_1.setBorder(new LineBorder(new Color(0, 0, 0)));
 		verticalBox_1.setBounds(319, 18, 140, 118);
-		frame.getContentPane().add(verticalBox_1);
+		profileFrame.getContentPane().add(verticalBox_1);
 		
 		JLabel lblNewLabel = new JLabel("Linked Account");
 		lblNewLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13));
@@ -182,9 +183,15 @@ public class ProfileScreen {
 		
 		Box horizontalBox = Box.createHorizontalBox();
 		horizontalBox.setBounds(213, 50, 1, 1);
-		frame.getContentPane().add(horizontalBox);
+		profileFrame.getContentPane().add(horizontalBox);
 		
-		frame.setVisible(true);
-		frame.setResizable(false);
+		profileFrame.setVisible(true);
+		profileFrame.setResizable(false);
+		
+		profileFrame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				profileFrame.dispose();
+			}
+		});
 	}
 }

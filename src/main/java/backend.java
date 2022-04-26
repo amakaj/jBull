@@ -18,15 +18,13 @@ public class Backend
 	JMenuBar servermenubar = new JMenuBar();
 	static JTextArea responseConsole = new JTextArea();
 	static JTextArea connectionsList = new JTextArea();
-	static String connectionInformation;
 	static String stringOfMessages = "";
-	static int numOfConnections = 0;
 	static String serverIP;
 	static String portAndIPInfo;
 	static boolean found = false;
-	static HashMap<Integer, String> listOfConnections = new HashMap<Integer, String>();
 	static String stringOfConnections = "";
 
+	static HashMap<Integer, String> listOfConnections = new HashMap<Integer, String>();	
 
 	private static void updateConnectionList() {
 		listOfConnections.forEach((clientnum, ip) -> stringOfConnections += "\nClient #: " + clientnum + "\nIP: " + ip);
@@ -43,14 +41,17 @@ public class Backend
 			public void run() {
 				String receivedString = "";
 				String clientNumber;
+				String threadName = currentThread().getName();
+				
 				try {
 					BufferedReader in = new BufferedReader(new InputStreamReader(inputSocket.getInputStream()));
 					if ((currentThread().getName()).substring((currentThread().getName()).length()-2).contains("-")) {
-						clientNumber = (currentThread().getName()).substring((currentThread().getName()).length()-1);
+						clientNumber = threadName.substring(threadName.length()-1);
 					} else {
-						clientNumber = (currentThread().getName()).substring((currentThread().getName()).length()-2);
+						clientNumber = threadName.substring(threadName.length()-2);
 					}
-					listOfConnections.put(Integer.valueOf(clientNumber), (inputSocket.getInetAddress()).toString().substring(1));
+					//inserts into hashtable
+					listOfConnections.put(Integer.valueOf(clientNumber), (inputSocket.getInetAddress()).toString().substring(1) /*to get rid of the slash at the beginning of the IP*/);
 
 					updateConnectionList();
 

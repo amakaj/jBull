@@ -1,14 +1,17 @@
 package main.java;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.Date;
 import javax.swing.border.MatteBorder;
+
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
+import java.util.Date;
 import java.io.*;
 import java.net.*;
-import java.awt.event.*;
+
 
 public class Dashboard {
 	//SOCKET SERVER CODE
@@ -16,8 +19,7 @@ public class Dashboard {
 	DataOutputStream outToServer = null;
 	BufferedReader inFromServer = null;
 	public static boolean connectedToSocket;
-
-
+	
 	public boolean socketConnect(String inputIPAdr, int inputPort) {
 		boolean rc = false;
 		try {
@@ -57,19 +59,6 @@ public class Dashboard {
 
 	public void createClientThread(String inputAddr, int inputPort) {
 		Thread connectThread = new Thread() {
-			/* old code to check if client was connected
-
-				if (connectedToSocket) {
-					try {
-						clientSocket.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					if (clientSocket.isClosed()) {
-						connectBtn.setText("Connect");
-						currentThread().interrupt();
-					}
-				} else {*/
 			public void run() {
 				if (!connectedToSocket) {
 					connectedToSocket = socketConnect(inputAddr, inputPort);
@@ -134,7 +123,6 @@ public class Dashboard {
 		frame.setVisible(true);
 
 		// Graph panel, which will display the graph
-
 		ImageIcon stock = new ImageIcon(
 				new ImageIcon(getClass().getResource("/main/resources/Stock_Graph.jpeg")).getImage()
 				.getScaledInstance(500, 400, Image.SCALE_DEFAULT));
@@ -165,7 +153,7 @@ public class Dashboard {
 		JButton connectBtn = new JButton("Connect");
 		connectBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				createClientThread("192.168.1.153", 3333);
+				createClientThread("192.168.1.157", 3333);
 			}
 		});
 		connectBtn.setBounds(247, 17, 161, 23);
@@ -231,8 +219,6 @@ public class Dashboard {
 		table_2.setBounds(16, 309, 304, 181);
 		table_2.setFillsViewportHeight(true);
 		panel2.add(table_2);
-
-		// JScrollPane scrollpane = new JScrollPane(table);
 
 		// Set the menu bar
 		frame.setJMenuBar(menubar);
@@ -309,7 +295,7 @@ public class Dashboard {
 		
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				if (clientSocket.isConnected() && clientSocket != null) {
+				if (clientSocket != null && clientSocket.isConnected()) {
 					try {
 						clientSocket.close();
 					} catch (IOException e1) {
