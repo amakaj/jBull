@@ -2,6 +2,9 @@ package main.java;
 
 import java.awt.*;
 import javax.swing.*;
+
+import main.java.fileIO;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -15,10 +18,10 @@ public class AccountCreation {
 	private JLabel userLabel;
 	private JTextField userField;
 	private JLabel passLabel;
-	private JTextField textField_1;
+	private JTextField phoneField;
 	private JLabel emailLabel;
 	private JLabel phoneLabel;
-	private JTextField textField_3;
+	private JTextField emailField;
 	private JButton backToLogin;
 	private JButton createButton;
 	private JPasswordField passField;
@@ -77,11 +80,11 @@ public class AccountCreation {
 		passLabel.setBounds(20, 142, 107, 16);
 		panel.add(passLabel);
 
-		textField_1 = new JTextField();
-		textField_1.setColumns(10);
-		textField_1.setBackground(Color.WHITE);
-		textField_1.setBounds(20, 287, 445, 20);
-		panel.add(textField_1);
+		phoneField = new JTextField();
+		phoneField.setColumns(10);
+		phoneField.setBackground(Color.WHITE);
+		phoneField.setBounds(20, 287, 445, 20);
+		panel.add(phoneField);
 
 		emailLabel = new JLabel("Email");
 		emailLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
@@ -93,11 +96,11 @@ public class AccountCreation {
 		phoneLabel.setBounds(20, 268, 107, 16);
 		panel.add(phoneLabel);
 
-		textField_3 = new JTextField();
-		textField_3.setColumns(10);
-		textField_3.setBackground(Color.WHITE);
-		textField_3.setBounds(20, 225, 445, 20);
-		panel.add(textField_3);
+		emailField = new JTextField();
+		emailField.setColumns(10);
+		emailField.setBackground(Color.WHITE);
+		emailField.setBounds(20, 225, 445, 20);
+		panel.add(emailField);
 
 		backToLogin = new JButton("Back to Login");
 
@@ -126,6 +129,41 @@ public class AccountCreation {
 				LoginScreen l1 = new LoginScreen();
 				creationFrame.dispose();
 			}
+		});
+		
+		createButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				String username_string = userField.getText().trim();
+				String password_string = passField.getText().trim();
+				String email_string = emailField.getText().trim();
+				String phone_string = phoneField.getText().trim();
+				
+				if((username_string == "" || username_string == null || username_string.length() == 0) || (password_string == "" || password_string == null || password_string.length() == 0)
+				   || (email_string == "" || email_string == null || email_string.length() == 0) || ((phone_string == "" || phone_string == null || phone_string.length() == 0))) {
+					JOptionPane.showMessageDialog(null, "ERROR! Empty Fields!", "Account Creation",JOptionPane.WARNING_MESSAGE);
+				
+				}
+				
+				userField.setText("");
+				passField.setText("");
+				emailField.setText("");
+				phoneField.setText("");
+				
+				String dataStr = null;
+				
+				dataStr = "\nUsername : " + username_string + "\n" + "   Password: " + password_string  + "\n"  + "   Email: "  + email_string   + "\n" + "   Phone: " + phone_string  + "\n";
+				//
+				// create object and write data to file
+				//
+	
+				fileIO fio = new fileIO("add_user.txt");
+				fio.wrTransactionData(dataStr);
+				
+			}
+			
 		});
 	}
 }
