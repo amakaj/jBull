@@ -6,6 +6,7 @@ import javax.swing.*;
 import main.java.fileIO;
 
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 
 //Account Creation
@@ -152,15 +153,22 @@ public class AccountCreation {
 				emailField.setText("");
 				phoneField.setText("");
 				
-				String dataStr = null;
+				//System.out.println(username_string);
+				User s = new User(username_string,password_string,email_string,phone_string);
 				
-				dataStr = "\nUsername : " + username_string + "\n" + "   Password: " + password_string  + "\n"  + "   Email: "  + email_string   + "\n" + "   Phone: " + phone_string  + "\n";
+				//dataStr = "\nUsername : " + username_string + "\n" + "   Password: " + password_string  + "\n"  + "   Email: "  + email_string   + "\n" + "   Phone: " + phone_string  + "\n";
 				//
 				// create object and write data to file
 				//
 	
-				fileIO fio = new fileIO("add_user.txt");
-				fio.wrTransactionData(dataStr);
+				try {
+					fileIO fio = new fileIO("add_user.txt");
+					fio.addtoCSV(s);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 				
 			}
 			

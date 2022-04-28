@@ -1,47 +1,48 @@
 package main.java;
 
+import java.awt.List;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+
+import com.opencsv.CSVWriter;
 
 public class fileIO {
 	String fileName = null;
+	CSVWriter writer = null;
+	ArrayList<String[]> data = new ArrayList<String[]>();
+
 	
-	public fileIO()
+	public fileIO() throws IOException
 	{
-	    fileName="transactionLog.txt";	
+	    fileName="transactionLog.csv"; 
+	     writer = new CSVWriter(new FileWriter(fileName,true));
+	
 	}
 	
-	public fileIO(String fn)
+	public fileIO(String fn) throws IOException
 	{
 		fileName = fn;
+		 writer = new CSVWriter(new FileWriter(fileName,true));
+	
 	}
 	
-	public void wrTransactionData(String dataStr)
+	public void addtoCSV(User s) throws IOException
 	{
-        FileWriter fwg = null;
-        try 
-        {
-        	// open the file in append write mode
-        	fwg = new FileWriter(fileName, true);
-        }
-        catch (IOException e)
-        {
-        	// TODO Auto-generated catch block
-        	e.printStackTrace();
-        }
-   	    
-        BufferedWriter bwg = new BufferedWriter(fwg);
-        PrintWriter outg   = new PrintWriter(bwg);
 		
-        String timeStamp = new SimpleDateFormat("MM-dd-yyyy HH.mm.ss").format(new Date());
+        String[] a = {s.getUsername(),s.getPassword(),s.getEmail(),s.getPhone()};
+        data.add(a);
+        writer.writeAll(data);
+        writer.flush();
         
-        outg.println(timeStamp + " : " + dataStr);
-        
-        outg.close();
+
 	}
+	
+
 
 }
