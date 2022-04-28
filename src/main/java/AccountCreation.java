@@ -153,13 +153,7 @@ public class AccountCreation {
 				emailField.setText("");
 				phoneField.setText("");
 				
-				//System.out.println(username_string);
 				User s = new User(username_string,password_string,email_string,phone_string);
-				
-				//dataStr = "\nUsername : " + username_string + "\n" + "   Password: " + password_string  + "\n"  + "   Email: "  + email_string   + "\n" + "   Phone: " + phone_string  + "\n";
-				//
-				// create object and write data to file
-				//
 	
 				try {
 					fileIO fio = new fileIO("add_user.txt");
