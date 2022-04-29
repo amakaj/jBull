@@ -153,16 +153,15 @@ public class AccountCreation {
 				emailField.setText("");
 				phoneField.setText("");
 				
-				User s = new User(username_string,password_string,email_string,phone_string);
+				User userObj = new User(username_string,password_string,email_string,phone_string);
 	
 				try {
 					fileIO fio = new fileIO("add_user.txt");
-					fio.addtoCSV(s);
+					fio.addtoCSV(userObj);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
 				
 			}
 			

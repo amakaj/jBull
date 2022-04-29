@@ -3,7 +3,7 @@ package main.java;
 public class User {
 
 	String username, password, email, phone;
-	User(String u, String pw, String e, String p){
+	public User(String u, String pw, String e, String p){
 		this.username = u;
 		this.password = pw;
 		this.email = e;
@@ -25,4 +25,6 @@ public class User {
 	public String getPhone() {
 		return phone;
 	}
+	
+	
 }

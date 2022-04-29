@@ -1,8 +1,12 @@
 package main.java;
 
 import javax.swing.*;
+
+import com.opencsv.exceptions.CsvValidationException;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 
 public class LoginScreen {
@@ -81,10 +85,21 @@ public class LoginScreen {
 		// ACTION LISTENERS
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Backend b = new Backend();
-				Dashboard d1 = new Dashboard();
-				loginFrame.setVisible(false);
-				loginFrame.dispose();
+				try {
+					fileIO fio = new fileIO("add_user.txt");
+					
+					boolean authenticated = fio.authenticate(userField.getText(), passField.getText());
+					
+					if (authenticated) {
+						Dashboard d = new Dashboard(userField.getText());
+						loginFrame.setVisible(false);
+						loginFrame.dispose();
+					} else {
+						JOptionPane.showMessageDialog(null, "ERROR! User not found", "Login",JOptionPane.WARNING_MESSAGE);
+					}
+				} catch (IOException | CsvValidationException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 

@@ -111,7 +111,7 @@ public class Dashboard {
 	 * since oftentimes Java Swing elements are not thread-safe
 	 * This method will create the GUI and show it.
 	 */
-	public Dashboard() {
+	public Dashboard(String username) {
 		// Frame creation
 		JFrame frame = new JFrame("jBull");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -153,7 +153,7 @@ public class Dashboard {
 		JButton connectBtn = new JButton("Connect");
 		connectBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				createClientThread("192.168.1.157", 3333);
+				createClientThread("192.168.1.153", 3333);
 			}
 		});
 		connectBtn.setBounds(247, 17, 161, 23);
@@ -258,7 +258,7 @@ public class Dashboard {
 
 		// Menus aligned on the right
 		menubar.add(Box.createHorizontalGlue()); // Separates right and left
-		JMenu profileName = new JMenu("John Doe");
+		JMenu profileName = new JMenu(username);
 		profileName.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT); // items in the menu will open aligned
 		// to the right
 		// Menu items to be appended to profile menu
@@ -310,6 +310,6 @@ public class Dashboard {
 		});
 	}
 	public static void main(String[] args) {
-		Dashboard d = new Dashboard();
+		Dashboard d = new Dashboard("null");
 	}
 }
