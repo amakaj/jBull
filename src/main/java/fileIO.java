@@ -36,7 +36,7 @@ public class fileIO {
 
 	public void addtoCSV(User s) throws IOException
 	{
-		String[] a = {s.getUsername(),s.getPassword(),s.getEmail(),s.getPhone()};
+		String[] a = {s.getFirstName(), s.getLastName(), s.getUsername(),s.getPassword(),s.getEmail()};
 		data.add(a);
 		writer.writeAll(data);
 		writer.flush();
@@ -61,22 +61,23 @@ public class fileIO {
 		}
 	}
 
-	public boolean authenticate(String username, String password) throws IOException, CsvValidationException {
+	public String authenticate(String username, String password) throws IOException, CsvValidationException {
 		FileReader fr = new FileReader(fileName);
 
 		CSVReader csvReader = new CSVReader(fr);
 		String[] nextRecord = null;
-		boolean userFound = false;
+		String returnString = null;
 
-		while (!userFound) {
+		while (returnString == null) {
 			if ((nextRecord = csvReader.readNext()) == null) {
-				return false;
+				return null;
 			}
 
-			if (nextRecord != null && (nextRecord[0].equals(username) && nextRecord[1].equals(password))) {
-				userFound = true;
+			//check for username or email
+			if (nextRecord != null && ((nextRecord[2].equals(username) || nextRecord[4].equals(username)) && nextRecord[3].equals(password))) {
+				returnString = nextRecord[0];
 			}
 		}
-		return userFound;
+		return returnString;
 	}
 }

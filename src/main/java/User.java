@@ -2,12 +2,22 @@ package main.java;
 
 public class User {
 
-	String username, password, email, phone;
-	public User(String u, String pw, String e, String p){
+	String firstName, lastName, username, password, email;
+	public User(String fn, String ln, String u, String pw, String e)
+	{
+		this.firstName = fn;
+		this.lastName = ln;
 		this.username = u;
 		this.password = pw;
 		this.email = e;
-		this.phone = p;
+	}
+	
+	public String getFirstName() {
+		return firstName;
+	}
+	
+	public String getLastName() {
+		return lastName;
 	}
 	
 	public String getUsername() {
@@ -20,11 +30,5 @@ public class User {
 	
 	public String getEmail() {
 		return email;
-	}
-	
-	public String getPhone() {
-		return phone;
-	}
-	
-	
+	}	
 }

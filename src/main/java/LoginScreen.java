@@ -40,9 +40,9 @@ public class LoginScreen {
 		jbullLabel.setBounds(133, 182, 73, 33);
 		panel.add(jbullLabel);
 
-		JLabel userLabel = new JLabel("Username");
+		JLabel userLabel = new JLabel("Username/Email");
 		userLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		userLabel.setBounds(37, 246, 114, 16);
+		userLabel.setBounds(37, 246, 263, 16);
 		panel.add(userLabel);
 
 		userField = new JTextField();
@@ -53,7 +53,7 @@ public class LoginScreen {
 
 		JLabel passLabel = new JLabel("Password");
 		passLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		passLabel.setBounds(37, 296, 114, 16);
+		passLabel.setBounds(37, 296, 263, 16);
 		panel.add(passLabel);
 
 		JButton loginButton = new JButton("Login");
@@ -88,10 +88,10 @@ public class LoginScreen {
 				try {
 					fileIO fio = new fileIO("add_user.txt");
 					
-					boolean authenticated = fio.authenticate(userField.getText(), passField.getText());
+					String authenticatedUser = fio.authenticate(userField.getText(), passField.getText());
 					
-					if (authenticated) {
-						Dashboard d = new Dashboard(userField.getText());
+					if (authenticatedUser != null) {
+						Dashboard d = new Dashboard(authenticatedUser);
 						loginFrame.setVisible(false);
 						loginFrame.dispose();
 					} else {

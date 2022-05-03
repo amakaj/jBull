@@ -153,7 +153,7 @@ public class Dashboard {
 		JButton connectBtn = new JButton("Connect");
 		connectBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				createClientThread("192.168.1.153", 3333);
+				createClientThread("10.101.22.106", 3333);
 			}
 		});
 		connectBtn.setBounds(247, 17, 161, 23);

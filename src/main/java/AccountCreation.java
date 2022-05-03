@@ -19,13 +19,13 @@ public class AccountCreation {
 	private JLabel userLabel;
 	private JTextField userField;
 	private JLabel passLabel;
-	private JTextField phoneField;
 	private JLabel emailLabel;
-	private JLabel phoneLabel;
 	private JTextField emailField;
 	private JButton backToLogin;
 	private JButton createButton;
 	private JPasswordField passField;
+	private JTextField firstNameField;
+	private JTextField lastNameField;
 
 	public AccountCreation() {
 		creationFrame = new JFrame("Account Creation");
@@ -37,7 +37,7 @@ public class AccountCreation {
 
 		ImageIcon bullToolbarIcon = new ImageIcon(
 				new ImageIcon(getClass().getResource("/main/resources/bull.png")).getImage()
-						.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
+				.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
 		creationFrame.setIconImage(bullToolbarIcon.getImage());
 
 		JPanel panel = new JPanel();
@@ -67,40 +67,29 @@ public class AccountCreation {
 
 		userLabel = new JLabel("Username");
 		userLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		userLabel.setBounds(20, 82, 107, 16);
+		userLabel.setBounds(20, 157, 107, 16);
 		panel.add(userLabel);
 
 		userField = new JTextField();
 		userField.setBackground(Color.WHITE);
-		userField.setBounds(20, 100, 445, 20);
+		userField.setBounds(20, 175, 445, 20);
 		panel.add(userField);
 		userField.setColumns(10);
 
 		passLabel = new JLabel("Password");
 		passLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		passLabel.setBounds(20, 142, 107, 16);
+		passLabel.setBounds(20, 220, 107, 16);
 		panel.add(passLabel);
-
-		phoneField = new JTextField();
-		phoneField.setColumns(10);
-		phoneField.setBackground(Color.WHITE);
-		phoneField.setBounds(20, 287, 445, 20);
-		panel.add(phoneField);
 
 		emailLabel = new JLabel("Email");
 		emailLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		emailLabel.setBounds(20, 207, 82, 16);
+		emailLabel.setBounds(20, 282, 82, 16);
 		panel.add(emailLabel);
-
-		phoneLabel = new JLabel("Phone");
-		phoneLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		phoneLabel.setBounds(20, 268, 107, 16);
-		panel.add(phoneLabel);
 
 		emailField = new JTextField();
 		emailField.setColumns(10);
 		emailField.setBackground(Color.WHITE);
-		emailField.setBounds(20, 225, 445, 20);
+		emailField.setBounds(20, 300, 445, 20);
 		panel.add(emailField);
 
 		backToLogin = new JButton("Back to Login");
@@ -119,8 +108,30 @@ public class AccountCreation {
 
 		passField = new JPasswordField();
 		passField.setBackground(Color.WHITE);
-		passField.setBounds(20, 162, 445, 20);
+		passField.setBounds(20, 240, 445, 20);
 		panel.add(passField);
+
+		JLabel firstNameLabel = new JLabel("First Name");
+		firstNameLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		firstNameLabel.setBounds(59, 83, 107, 16);
+		panel.add(firstNameLabel);
+
+		firstNameField = new JTextField();
+		firstNameField.setColumns(10);
+		firstNameField.setBackground(Color.WHITE);
+		firstNameField.setBounds(20, 104, 184, 20);
+		panel.add(firstNameField);
+
+		JLabel lblLastName = new JLabel("Last Name");
+		lblLastName.setFont(new Font("SansSerif", Font.PLAIN, 18));
+		lblLastName.setBounds(322, 83, 107, 16);
+		panel.add(lblLastName);
+
+		lastNameField = new JTextField();
+		lastNameField.setColumns(10);
+		lastNameField.setBackground(Color.WHITE);
+		lastNameField.setBounds(281, 104, 184, 20);
+		panel.add(lastNameField);
 		creationFrame.setVisible(true);
 
 		// ACTION LISTENERS
@@ -131,40 +142,41 @@ public class AccountCreation {
 				creationFrame.dispose();
 			}
 		});
-		
+
 		createButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				String firstName = firstNameField.getText().trim();
+				String lastName = lastNameField.getText().trim();
 				String username_string = userField.getText().trim();
 				String password_string = passField.getText().trim();
 				String email_string = emailField.getText().trim();
-				String phone_string = phoneField.getText().trim();
-				
-				if((username_string == "" || username_string == null || username_string.length() == 0) || (password_string == "" || password_string == null || password_string.length() == 0)
-				   || (email_string == "" || email_string == null || email_string.length() == 0) || ((phone_string == "" || phone_string == null || phone_string.length() == 0))) {
-					JOptionPane.showMessageDialog(null, "ERROR! Empty Fields!", "Account Creation",JOptionPane.WARNING_MESSAGE);
-				
+
+				if((username_string == "" || username_string == null || username_string.length() == 0)
+						|| (password_string == "" || password_string == null || password_string.length() == 0)
+						|| (email_string == "" || email_string == null || email_string.length() == 0)
+						|| (firstName == "" || firstName == null || firstName.length() == 0)
+						|| (lastName == "" || lastName == null || lastName.length() == 0))
+				{
+					JOptionPane.showMessageDialog(null, "ERROR! All fields are required!", "Account Creation",JOptionPane.WARNING_MESSAGE);
 				}
-				
+
+				firstNameField.setText("");
+				lastNameField.setText("");
 				userField.setText("");
 				passField.setText("");
 				emailField.setText("");
-				phoneField.setText("");
-				
-				User userObj = new User(username_string,password_string,email_string,phone_string);
-	
+
+				User userObj = new User(firstName, lastName, username_string,password_string, email_string);
+
 				try {
 					fileIO fio = new fileIO("add_user.txt");
 					fio.addtoCSV(userObj);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
 			}
-			
 		});
 	}
 }
