@@ -3,7 +3,6 @@ package main.java;
 import java.awt.*;
 import javax.swing.*;
 
-import main.java.fileIO;
 
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -151,18 +150,21 @@ public class AccountCreation {
 				userField.setText("");
 				passField.setText("");
 				emailField.setText("");
-				phoneField.setText("");
+				
 				
 				User s = new User(username_string,password_string,email_string,phone_string);
+				
+			
 	
-				try {
-					fileIO fio = new fileIO("add_user.txt");
+				/*try {
+					fileIO fio = new fileIO("add_user.csv");
 					fio.addtoCSV(s);
+					//fio.readfromCSV();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				}
-				
+				} */
+			
 				
 			}
 			
