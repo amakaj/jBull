@@ -1,1 +1,3 @@
-"Anthony","Makaj","tmakaj213","test123","tmakaj213@gmail.com"
+"test","test","test","test","test","1000.0","GOOG","2","AAPL","400"
+"Jenna","Giamarino","jenna","jenna","jenna@gmail.com","1000.0","GOOG","2","AAPL","400"
+"Anthony","Makaj","tmakaj213","test1","tmakaj213@gmail.com","1000.0","GOOG","2","AAPL","10000000"

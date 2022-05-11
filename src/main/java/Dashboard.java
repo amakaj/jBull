@@ -12,6 +12,8 @@ import java.util.Date;
 import java.io.*;
 import java.net.*;
 
+import yahoofinance.YahooFinance;
+import yahoofinance.Stock;
 
 public class Dashboard {
 	//SOCKET SERVER CODE
@@ -111,7 +113,7 @@ public class Dashboard {
 	 * since oftentimes Java Swing elements are not thread-safe
 	 * This method will create the GUI and show it.
 	 */
-	public Dashboard(String username) {
+	public Dashboard(User currentUser) {
 		// Frame creation
 		JFrame frame = new JFrame("jBull");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -258,7 +260,12 @@ public class Dashboard {
 
 		// Menus aligned on the right
 		menubar.add(Box.createHorizontalGlue()); // Separates right and left
-		JMenu profileName = new JMenu(username);
+		JMenu profileName;
+		if (currentUser != null) {
+			profileName = new JMenu(currentUser.getFirstName());
+		} else {
+			profileName = new JMenu("null");
+		}
 		profileName.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT); // items in the menu will open aligned
 		// to the right
 		// Menu items to be appended to profile menu
@@ -309,7 +316,7 @@ public class Dashboard {
 			}
 		});
 	}
-	public static void main(String[] args) {
-		Dashboard d = new Dashboard("null");
+	public static void main(String[] args) throws IOException {
+		Dashboard d = new Dashboard(null);
 	}
 }

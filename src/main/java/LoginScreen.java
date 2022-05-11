@@ -2,11 +2,13 @@ package main.java;
 
 import javax.swing.*;
 
+import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvValidationException;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.HashMap;
 import java.awt.event.ActionEvent;
 
 public class LoginScreen {
@@ -88,16 +90,26 @@ public class LoginScreen {
 				try {
 					fileIO fio = new fileIO("add_user.txt");
 					
-					String authenticatedUser = fio.authenticate(userField.getText(), passField.getText());
+					User authenticatedUser = fio.authenticate(userField.getText(), passField.getText());
 					
 					if (authenticatedUser != null) {
-						Dashboard d = new Dashboard(authenticatedUser);
+						Dashboard d = new Dashboard(authenticatedUser);						
 						loginFrame.setVisible(false);
 						loginFrame.dispose();
+					
+						//hashmap testing
+						HashMap<String, Integer> testMap = new HashMap<String, Integer>();
+						testMap.put("AAPL", 1);
+						testMap.put("GOOG", 2);
+						testMap.put("AAPL", 10000000);
+						fio.addStockData(authenticatedUser, testMap);
+						
+						HashMap<String,Integer> newMap;
+						newMap = fio.readStockData(authenticatedUser);
 					} else {
 						JOptionPane.showMessageDialog(null, "ERROR! User not found", "Login",JOptionPane.WARNING_MESSAGE);
 					}
-				} catch (IOException | CsvValidationException e1) {
+				} catch (IOException | CsvException e1) {
 					e1.printStackTrace();
 				}
 			}
