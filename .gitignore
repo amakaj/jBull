@@ -2,3 +2,5 @@
 .DS_Store
 /.vscode
 LICENSE
+*.class
+add_user.txt
