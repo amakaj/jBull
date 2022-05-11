@@ -59,7 +59,7 @@ public class fileIO {
 				int j = 7;
 				for (int i = 6; i < nextRecord.length; i+=2) {
 					outputMap.put(nextRecord[i], Integer.parseInt(nextRecord[j]));
-					j++;
+					j+=2;
 				}
 			}
 		}

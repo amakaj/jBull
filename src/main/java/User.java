@@ -66,4 +66,32 @@ public class User {
 	public HashMap<String, Integer> getStockData() {
 		return stockData;
 	}
+	
+	public void setFirstName(String inputFirstName) {
+		firstName = inputFirstName;
+	}
+	
+	public void setLastName(String inputLastName) {
+		lastName = inputLastName;
+	}
+	
+	public void setUsername(String inputUsername) {
+		username = inputUsername;
+	}
+	
+	public void setPassword(String inputPassword) {
+		password = inputPassword;
+	}
+	
+	public void setEmail(String inputEmail) {
+		email = inputEmail;
+	}
+	
+	public void setCashBalance(Double inputCashBalance) {
+		cashBalance = inputCashBalance;
+	}
+	
+	public void setStockData(HashMap<String, Integer> inputStockData) {
+		stockData = inputStockData;
+	}
 }

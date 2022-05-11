@@ -102,10 +102,10 @@ public class LoginScreen {
 						testMap.put("AAPL", 1);
 						testMap.put("GOOG", 2);
 						testMap.put("AAPL", 10000000);
+						testMap.put("YAHOO", 500);
 						fio.addStockData(authenticatedUser, testMap);
 						
-						HashMap<String,Integer> newMap;
-						newMap = fio.readStockData(authenticatedUser);
+						HashMap<String,Integer> newMap = fio.readStockData(authenticatedUser);
 					} else {
 						JOptionPane.showMessageDialog(null, "ERROR! User not found", "Login",JOptionPane.WARNING_MESSAGE);
 					}
