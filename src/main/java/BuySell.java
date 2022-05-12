@@ -17,11 +17,15 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import com.opencsv.exceptions.CsvException;
+
 import yahoofinance.*;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -107,49 +111,16 @@ public class BuySell {
 
 			//Assign portfolioBalance to user object
 			currentUser.setPortfolioBalance(portfolioBalance);
+		} else if (stockDataNew.isEmpty()) {
+			currentUser.setPortfolioBalance(0.0);
 		}
 
 		portfolioBalanceLabel.setText("Portfolio Balance: $" + String.format("%.2f", currentUser.getPortfolioBalance()));
 		cashBalanceLabel.setText("Cash Balance: $" + String.format("%.2f", currentUser.getCashBalance()));
 		totalBalanceLabel.setText("Total Balance: $" + String.format("%.2f", (currentUser.getPortfolioBalance() + currentUser.getCashBalance())));
-
 	}
 
 	private static void updateTable() {
-//		HashMap<String, Integer> stockDataNew = currentUser.getStockData();
-//		//Show current list of User Stocks
-//		String[] columnName = {"Symbol", "# of Shares","Price/Share ($)"};
-//		Object[][] data = new Object[stockDataNew.size()][3];
-//
-//		if (!stockDataNew.isEmpty()) {
-//			//PARSING HASHMAP DATA INTO TABLE
-//			Iterator hashMapIterator = stockDataNew.entrySet().iterator();
-//			int tableIndex = 0;
-//
-//			while (hashMapIterator.hasNext()) {
-//				Map.Entry hmElement = (Map.Entry) hashMapIterator.next();
-//				data[tableIndex][0] = hmElement.getKey();
-//				data[tableIndex][1] = hmElement.getValue();
-//				try {
-//					Stock s = YahooFinance.get(hmElement.getKey().toString());
-//					data[tableIndex][2] = (s.getQuote().getPrice()).toString();
-//				} catch (IOException e1) {
-//					e1.printStackTrace();
-//				}
-//				tableIndex++;
-//			}
-//		}
-//
-//		DefaultTableModel stockTableModel = new DefaultTableModel(data, columnName) {
-//			public boolean editCellAt(int row, int column, java.util.EventObject e) {
-//				return false;
-//			}
-//
-//			public boolean isCellEditable(int row, int column) {
-//				return false;
-//			}
-//		};
-		
 		HashMap<String, Integer> stockDataNew = currentUser.getStockData();
 		DefaultTableModel stockTableModel;
 		
@@ -194,25 +165,25 @@ public class BuySell {
 	public BuySell(User inputUser) {
 		currentUser = inputUser;
 
-		// Frame creation
-		JFrame frame = new JFrame("Buy/Sell");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(476, 380);
-		frame.setResizable(false);
-		frame.getContentPane().setLayout(null);
+		// buySellFrame creation
+		JFrame buySellFrame = new JFrame("Buy/Sell");
+		buySellFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		buySellFrame.setSize(476, 380);
+		buySellFrame.setResizable(false);
+		buySellFrame.getContentPane().setLayout(null);
 
 		panel = new JPanel();
 		panel.setBackground(Color.WHITE);
 		panel.setBounds(0, 0, 460, 341);
-		frame.getContentPane().add(panel);
+		buySellFrame.getContentPane().add(panel);
 		panel.setLayout(null);
 
 		// Instantiate the image objects
 		ImageIcon bullIcon = new ImageIcon(new ImageIcon(getClass().getResource("/main/resources/bull.png")).getImage()
 				.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
 
-		// Set the icon image for the frame
-		frame.setIconImage(bullIcon.getImage());
+		// Set the icon image for the buySellFrame
+		buySellFrame.setIconImage(bullIcon.getImage());
 
 		HashMap<String, Integer> stockData = currentUser.getStockData();
 
@@ -245,19 +216,6 @@ public class BuySell {
 		panel.add(nameLabel);
 
 		stockSearchField = new JTextField();
-		//				stockSearchField.addKeyListener(new KeyAdapter() {
-		//					@Override
-		//					public void keyTyped(KeyEvent e) {
-		//						if (Integer.parseInt(numOfSharesField.getText()) > 0 && (stockSearchField.getText() != null && stockSearchField.getText().equals(""))) {
-		//							try {
-		//								Stock s = YahooFinance.get(stockSearchField.getText());
-		//								priceLabel.setText("Price: $" + s.getQuote().getPrice());
-		//							} catch (IOException ex) {
-		//								ex.printStackTrace();
-		//							}
-		//						}
-		//					}
-		//				});
 		stockSearchField.setBounds(20, 70, 145, 20);
 		panel.add(stockSearchField);
 		stockSearchField.setColumns(10);
@@ -275,29 +233,6 @@ public class BuySell {
 
 		numOfSharesField = new JTextField();
 		numOfSharesField.setBounds(123, 95, 42, 20);
-//		numOfSharesField.addKeyListener(new KeyAdapter() {
-//			@Override
-//			public void keyTyped(KeyEvent e) {
-//				try {
-//					if ((numOfSharesField.getText() != null && !numOfSharesField.getText().equals("") && Integer.parseInt(numOfSharesField.getText()) > 0)
-//							&& (stockSearchField.getText() != null && !stockSearchField.getText().equals(""))) {
-//						try {
-//							Stock s = YahooFinance.get(stockSearchField.getText());
-//							priceOfFieldShare = s.getQuote().getPrice().doubleValue() * Double.parseDouble(numOfSharesField.getText());
-//
-//							priceLabel.setText("Price: $" + String.format("%.2f", priceOfFieldShare));
-//						} catch (IOException ex) {
-//							ex.printStackTrace();
-//						}
-//					} else {
-//						priceLabel.setText("Price: $---");
-//						priceOfFieldShare = 0.0;
-//					}
-//				} catch (NumberFormatException ex) {
-//					ex.printStackTrace();
-//				}
-//			}
-//		});
 		numOfSharesField.setColumns(10);
 		panel.add(numOfSharesField);
 
@@ -309,11 +244,11 @@ public class BuySell {
 		JButton buyBtn = new JButton("Buy");
 		buyBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (currentUser.getCashBalance() > priceOfFieldShare) {
+				if (stockSearchField.getText() != null && !stockSearchField.getText().equals("") && numOfSharesField.getText() != null && !numOfSharesField.getText().equals("") && (currentUser.getCashBalance() > priceOfFieldShare)) {
 					if (stockData.containsKey(stockSearchField.getText())) {
 
 						int numOfStocks = stockData.get(stockSearchField.getText());
-						numOfStocks+= Integer.parseInt(numOfSharesField.getText());
+						numOfStocks += Integer.parseInt(numOfSharesField.getText());
 
 						stockData.put(stockSearchField.getText(), numOfStocks);
 						currentUser.setCashBalance(currentUser.getCashBalance()-priceOfFieldShare);
@@ -328,7 +263,7 @@ public class BuySell {
 
 					} else if (!stockData.containsKey(stockSearchField.getText())) {
 
-						stockData.put(stockSearchField.getText(), 1);
+						stockData.put(stockSearchField.getText(), Integer.parseInt(numOfSharesField.getText()));
 						currentUser.setCashBalance(currentUser.getCashBalance()-priceOfFieldShare);
 						currentUser.setStockData(stockData);
 
@@ -385,10 +320,23 @@ public class BuySell {
 		updateBalances();
 
 		// Display the window
-		frame.setVisible(true);
+		buySellFrame.setVisible(true);
 		updatePrice();
-	}
-	public static void main(String[] args) {
-		BuySell bs = new BuySell(null);
+	
+		buySellFrame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				//Actions to take when window is closed
+				try {
+					fileIO fio = new fileIO("add_user.txt");
+					fio.addStockData(currentUser, stockData);
+				} catch (IOException | CsvException e1) {
+					e1.printStackTrace();
+				}
+
+				buySellFrame.setVisible(false);
+				Dashboard d = new Dashboard(currentUser);
+				buySellFrame.dispose();
+			}
+		});
 	}
 }

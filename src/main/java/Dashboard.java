@@ -3,6 +3,8 @@ package main.java;
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 
+import com.opencsv.exceptions.CsvException;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.event.ActionListener;
@@ -111,15 +113,11 @@ public class Dashboard {
 		startClockThread.start();
 	}
 
-	/*
-	 * Method invoked from the event-dispatching thread (EDT) for thread-safety,
-	 * since oftentimes Java Swing elements are not thread-safe
-	 * This method will create the GUI and show it.
-	 */
+
 	public Dashboard(User currentUser) {
 		// Frame creation
 		JFrame frame = new JFrame("jBull");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setSize(900, 600);
 		frame.setResizable(false);
 		frame.getContentPane().setLayout(null);
@@ -127,7 +125,6 @@ public class Dashboard {
 		// Display the window
 		frame.setVisible(true);
 
-		//Stock algorithms for user
 		HashMap<String, Integer> stockData = currentUser.getStockData();
 
 		// Graph panel, which will display the graph
@@ -278,7 +275,11 @@ public class Dashboard {
 		buySell.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				currentUser.setStockData(stockData);
+				
+				frame.setVisible(false);
 				BuySell bs = new BuySell(currentUser);
+				frame.dispose();
+				
 			}
 		});
 		JButton news = new JButton("News");
@@ -299,11 +300,7 @@ public class Dashboard {
 		// Menus aligned on the right
 		menubar.add(Box.createHorizontalGlue()); // Separates right and left
 		JMenu profileName;
-		if (currentUser != null) {
-			profileName = new JMenu(currentUser.getFirstName());
-		} else {
-			profileName = new JMenu("null");
-		}
+		profileName = new JMenu(currentUser.getFirstName());
 		profileName.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT); // items in the menu will open aligned
 		// to the right
 		// Menu items to be appended to profile menu
@@ -347,6 +344,14 @@ public class Dashboard {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
+				}
+			
+				try {
+					fileIO fio = new fileIO("add_user.txt");
+					fio.addStockData(currentUser, stockData);
+				} catch (IOException | CsvException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 
 				frame.dispose();
