@@ -9,6 +9,7 @@ import java.awt.Image;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -22,6 +23,7 @@ import javax.swing.JButton;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -38,9 +40,46 @@ public class BuySell {
 	private static JLabel portfolioBalanceLabel;
 	private static JLabel cashBalanceLabel;
 	private static JLabel totalBalanceLabel;
-	public static User currentUser;
 
-	public static void updateBalances() throws IOException {
+	private static User currentUser;
+
+	private void updatePrice() {
+		Thread startPriceThread = new Thread() {
+			public void run() {
+				while (true) {
+					try {
+						if ((numOfSharesField.getText() != null && !numOfSharesField.getText().equals("") && Integer.parseInt(numOfSharesField.getText()) > 0)
+								&& (stockSearchField.getText() != null && !stockSearchField.getText().equals(""))) {
+							try {
+								Stock s = YahooFinance.get(stockSearchField.getText());
+								if (s != null) {
+									priceOfFieldShare = s.getQuote().getPrice().doubleValue() * Double.parseDouble(numOfSharesField.getText());
+									priceLabel.setText("Price: $" + String.format("%.2f", priceOfFieldShare));
+								} else {
+									priceLabel.setText("Price: $---");
+								}
+							} catch (IOException e) {
+								e.printStackTrace();
+							} catch (NullPointerException e) {
+								e.printStackTrace();
+							}
+						}
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+					}
+
+					try {
+						sleep(1000L);// sleep for 1 second
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} 
+				}
+			}
+		};
+		startPriceThread.start();
+	}
+
+	private static void updateBalances() {
 		HashMap<String, Integer> stockDataNew = currentUser.getStockData();
 
 		if (!stockDataNew.isEmpty()) {
@@ -53,11 +92,16 @@ public class BuySell {
 				//Gets an individual element
 				Map.Entry mapElement = (Map.Entry)hmIterator.next();
 
-				//Retrieves stock price for the current stock symbol (i.e., AAPL, TSLA, AMZN, etc.)
-				Stock s = YahooFinance.get(mapElement.getKey().toString());
-				
-				//Take the stock symbol, multiply it by # of shares, and add to portfolioBalance
-				portfolioBalance += (s.getQuote().getPrice()).doubleValue() * Integer.parseInt(mapElement.getValue().toString());
+				try {
+					//Retrieves stock price for the current stock symbol (i.e., AAPL, TSLA, AMZN, etc.)
+					Stock s = YahooFinance.get(mapElement.getKey().toString());
+
+					//Take the stock symbol, multiply it by # of shares, and add to portfolioBalance
+					portfolioBalance += (s.getQuote().getPrice()).doubleValue() * Integer.parseInt(mapElement.getValue().toString());
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 
 			//Assign portfolioBalance to user object
@@ -67,9 +111,10 @@ public class BuySell {
 		portfolioBalanceLabel.setText("Portfolio Balance: $" + String.format("%.2f", currentUser.getPortfolioBalance()));
 		cashBalanceLabel.setText("Cash Balance: $" + String.format("%.2f", currentUser.getCashBalance()));
 		totalBalanceLabel.setText("Total Balance: $" + String.format("%.2f", (currentUser.getPortfolioBalance() + currentUser.getCashBalance())));
+
 	}
 
-	public static void updateTable() {
+	private static void updateTable() {
 		HashMap<String, Integer> stockDataNew = currentUser.getStockData();
 		//Show current list of User Stocks
 		String[] columnName = {"Symbol", "# of Shares","Price/Share ($)"};
@@ -105,13 +150,12 @@ public class BuySell {
 		};
 
 		stockTable = new JTable(stockTableModel);
-		stockTableModel.setDataVector(data, columnName);
 		stockTableModel.fireTableDataChanged();
 	}
 
 	public BuySell(User inputUser) {
 		currentUser = inputUser;
-		
+
 		// Frame creation
 		JFrame frame = new JFrame("Buy/Sell");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -193,29 +237,29 @@ public class BuySell {
 
 		numOfSharesField = new JTextField();
 		numOfSharesField.setBounds(123, 95, 42, 20);
-		numOfSharesField.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				try {
-					if ((numOfSharesField.getText() != null && !numOfSharesField.getText().equals("") && Integer.parseInt(numOfSharesField.getText()) > 0)
-							&& (stockSearchField.getText() != null && !stockSearchField.getText().equals(""))) {
-						try {
-							Stock s = YahooFinance.get(stockSearchField.getText());
-							priceOfFieldShare = s.getQuote().getPrice().doubleValue() * Double.parseDouble(numOfSharesField.getText());
-
-							priceLabel.setText("Price: $" + String.format("%.2f", priceOfFieldShare));
-						} catch (IOException ex) {
-							ex.printStackTrace();
-						}
-					} else {
-						priceLabel.setText("Price: $---");
-						priceOfFieldShare = 0.0;
-					}
-				} catch (NumberFormatException ex) {
-					ex.printStackTrace();
-				}
-			}
-		});
+//		numOfSharesField.addKeyListener(new KeyAdapter() {
+//			@Override
+//			public void keyTyped(KeyEvent e) {
+//				try {
+//					if ((numOfSharesField.getText() != null && !numOfSharesField.getText().equals("") && Integer.parseInt(numOfSharesField.getText()) > 0)
+//							&& (stockSearchField.getText() != null && !stockSearchField.getText().equals(""))) {
+//						try {
+//							Stock s = YahooFinance.get(stockSearchField.getText());
+//							priceOfFieldShare = s.getQuote().getPrice().doubleValue() * Double.parseDouble(numOfSharesField.getText());
+//
+//							priceLabel.setText("Price: $" + String.format("%.2f", priceOfFieldShare));
+//						} catch (IOException ex) {
+//							ex.printStackTrace();
+//						}
+//					} else {
+//						priceLabel.setText("Price: $---");
+//						priceOfFieldShare = 0.0;
+//					}
+//				} catch (NumberFormatException ex) {
+//					ex.printStackTrace();
+//				}
+//			}
+//		});
 		numOfSharesField.setColumns(10);
 		panel.add(numOfSharesField);
 
@@ -236,13 +280,14 @@ public class BuySell {
 						stockData.put(stockSearchField.getText(), numOfStocks);
 						currentUser.setCashBalance(currentUser.getCashBalance()-priceOfFieldShare);
 						currentUser.setStockData(stockData);
+						System.out.println(currentUser.getPortfolioBalance());
 
-						try {
-							updateBalances();
-							updateTable();
-						} catch (IOException ex) {
-							ex.printStackTrace();
-						}
+						updateBalances();
+						updateTable();
+						stockTable.repaint();
+
+						System.out.println(currentUser.getPortfolioBalance());
+
 
 					} else if (!stockData.containsKey(stockSearchField.getText())) {
 
@@ -250,13 +295,8 @@ public class BuySell {
 						currentUser.setCashBalance(currentUser.getCashBalance()-priceOfFieldShare);
 						currentUser.setStockData(stockData);
 
-						try {
-							updateBalances();
-							updateTable();
-						} catch (IOException ex) {
-							ex.printStackTrace();
-						}
-
+						updateBalances();
+						updateTable();
 					}
 				}
 			}
@@ -282,35 +322,34 @@ public class BuySell {
 
 					currentUser.setStockData(stockData);
 
-					try {
-						updateBalances();
-						updateTable();
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					}
+					updateBalances();
+					updateTable();
 				}
 			}
 		});
 		sellBtn.setBounds(101, 152, 64, 23);
 		panel.add(sellBtn);
 
-		portfolioBalanceLabel = new JLabel("Portfolio Balance: $" + currentUser.getPortfolioBalance());
+		portfolioBalanceLabel = new JLabel("Portfolio Balance: $---");
 		portfolioBalanceLabel.setBounds(20, 251, 181, 20);
 		portfolioBalanceLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		panel.add(portfolioBalanceLabel);
 
-		cashBalanceLabel = new JLabel("Cash Balance: $" + currentUser.getCashBalance());
+		cashBalanceLabel = new JLabel("Cash Balance: $---");
 		cashBalanceLabel.setBounds(20, 274, 181, 20);
 		cashBalanceLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		panel.add(cashBalanceLabel);
 
-		totalBalanceLabel = new JLabel("Total Balance: $" + (currentUser.getPortfolioBalance() + currentUser.getCashBalance()));
+		totalBalanceLabel = new JLabel("Total Balance: $---");
 		totalBalanceLabel.setBounds(20, 298, 181, 20);
 		totalBalanceLabel.setFont(new Font("Arial", Font.BOLD, 12));
 		panel.add(totalBalanceLabel);
 
+		updateBalances();
+
 		// Display the window
 		frame.setVisible(true);
+		updatePrice();
 	}
 	public static void main(String[] args) {
 		BuySell bs = new BuySell(null);
