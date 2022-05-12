@@ -40,6 +40,7 @@ public class BuySell {
 	private static JLabel portfolioBalanceLabel;
 	private static JLabel cashBalanceLabel;
 	private static JLabel totalBalanceLabel;
+	private static JScrollPane stockTableScrollPane;
 
 	private static User currentUser;
 
@@ -115,42 +116,79 @@ public class BuySell {
 	}
 
 	private static void updateTable() {
+//		HashMap<String, Integer> stockDataNew = currentUser.getStockData();
+//		//Show current list of User Stocks
+//		String[] columnName = {"Symbol", "# of Shares","Price/Share ($)"};
+//		Object[][] data = new Object[stockDataNew.size()][3];
+//
+//		if (!stockDataNew.isEmpty()) {
+//			//PARSING HASHMAP DATA INTO TABLE
+//			Iterator hashMapIterator = stockDataNew.entrySet().iterator();
+//			int tableIndex = 0;
+//
+//			while (hashMapIterator.hasNext()) {
+//				Map.Entry hmElement = (Map.Entry) hashMapIterator.next();
+//				data[tableIndex][0] = hmElement.getKey();
+//				data[tableIndex][1] = hmElement.getValue();
+//				try {
+//					Stock s = YahooFinance.get(hmElement.getKey().toString());
+//					data[tableIndex][2] = (s.getQuote().getPrice()).toString();
+//				} catch (IOException e1) {
+//					e1.printStackTrace();
+//				}
+//				tableIndex++;
+//			}
+//		}
+//
+//		DefaultTableModel stockTableModel = new DefaultTableModel(data, columnName) {
+//			public boolean editCellAt(int row, int column, java.util.EventObject e) {
+//				return false;
+//			}
+//
+//			public boolean isCellEditable(int row, int column) {
+//				return false;
+//			}
+//		};
+		
 		HashMap<String, Integer> stockDataNew = currentUser.getStockData();
-		//Show current list of User Stocks
-		String[] columnName = {"Symbol", "# of Shares","Price/Share ($)"};
-		Object[][] data = new Object[stockDataNew.size()][3];
-
+		DefaultTableModel stockTableModel;
+		
+		if (stockTable != null) { // if stocktable was found already
+			// get the model from stocktable
+			stockTableModel = (DefaultTableModel) stockTable.getModel();
+		} else {
+			//create a new model for stocktable
+			stockTableModel = new DefaultTableModel();
+			
+			//add columns
+			stockTableModel.addColumn("Symbol");
+			stockTableModel.addColumn("# of Shares");
+			stockTableModel.addColumn("Price/Share ($)");
+		}
+		
+		stockTableModel.getDataVector().removeAllElements();
+		
 		if (!stockDataNew.isEmpty()) {
-			//PARSING HASHMAP DATA INTO TABLE
+			//PARSING HASHMAP DATA
 			Iterator hashMapIterator = stockDataNew.entrySet().iterator();
-			int tableIndex = 0;
-
+			
 			while (hashMapIterator.hasNext()) {
 				Map.Entry hmElement = (Map.Entry) hashMapIterator.next();
-				data[tableIndex][0] = hmElement.getKey();
-				data[tableIndex][1] = hmElement.getValue();
+				
 				try {
 					Stock s = YahooFinance.get(hmElement.getKey().toString());
-					data[tableIndex][2] = (s.getQuote().getPrice()).toString();
+					String stockPrice = (s.getQuote().getPrice()).toString();
+					stockTableModel.addRow(new Object[] {hmElement.getKey(), hmElement.getValue(), stockPrice});
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-				tableIndex++;
 			}
 		}
-
-		DefaultTableModel stockTableModel = new DefaultTableModel(data, columnName) {
-			public boolean editCellAt(int row, int column, java.util.EventObject e) {
-				return false;
-			}
-
-			public boolean isCellEditable(int row, int column) {
-				return false;
-			}
-		};
-
 		stockTable = new JTable(stockTableModel);
 		stockTableModel.fireTableDataChanged();
+		
+		stockTable.revalidate();
+		stockTable.repaint();
 	}
 
 	public BuySell(User inputUser) {
@@ -178,12 +216,12 @@ public class BuySell {
 
 		HashMap<String, Integer> stockData = currentUser.getStockData();
 
-		updateTable();
-
-		JScrollPane stockTableScrollPane = new JScrollPane();
-		stockTableScrollPane.setBounds(211, 70, 239, 251);
+		stockTableScrollPane = new JScrollPane();
+		stockTableScrollPane.setBounds(180, 70, 270, 251);
 		panel.add(stockTableScrollPane);
 
+		updateTable();
+		
 		stockTable.setFont(new Font("Arial", Font.PLAIN, 14));
 
 		stockTable.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -197,7 +235,7 @@ public class BuySell {
 		stockTable.setDragEnabled(false);
 
 		JLabel stocksOwnedLabel = new JLabel("Stocks Owned");
-		stocksOwnedLabel.setBounds(211, 48, 145, 20);
+		stocksOwnedLabel.setBounds(180, 48, 145, 20);
 		stocksOwnedLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		panel.add(stocksOwnedLabel);
 
@@ -275,7 +313,7 @@ public class BuySell {
 					if (stockData.containsKey(stockSearchField.getText())) {
 
 						int numOfStocks = stockData.get(stockSearchField.getText());
-						numOfStocks++;
+						numOfStocks+= Integer.parseInt(numOfSharesField.getText());
 
 						stockData.put(stockSearchField.getText(), numOfStocks);
 						currentUser.setCashBalance(currentUser.getCashBalance()-priceOfFieldShare);
@@ -284,7 +322,6 @@ public class BuySell {
 
 						updateBalances();
 						updateTable();
-						stockTable.repaint();
 
 						System.out.println(currentUser.getPortfolioBalance());
 
@@ -307,7 +344,7 @@ public class BuySell {
 		JButton sellBtn = new JButton("Sell");
 		sellBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (stockData.get(stockSearchField.getText()) != null && stockData.get(stockSearchField.getText()) >= Integer.parseInt(numOfSharesField.getText()))  {
+				if (stockData.get(stockSearchField.getText()) != null && stockData.get(stockSearchField.getText()) >= Integer.parseInt(numOfSharesField.getText()) && priceOfFieldShare != null)  {
 					Integer numOfSharesCurrentlyOwned = stockData.get(stockSearchField.getText());
 					currentUser.setCashBalance(currentUser.getCashBalance()+priceOfFieldShare);
 
