@@ -3,12 +3,16 @@ package main.java;
 import javax.swing.*;
 
 import com.opencsv.exceptions.CsvException;
-import com.opencsv.exceptions.CsvValidationException;
+
+import yahoofinance.*;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.rmi.UnknownHostException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.awt.event.ActionEvent;
 
 public class LoginScreen {
@@ -81,32 +85,60 @@ public class LoginScreen {
 
 		ImageIcon bullToolbarIcon = new ImageIcon(
 				new ImageIcon(getClass().getResource("/main/resources/bull.png")).getImage()
-						.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
+				.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
 		loginFrame.setIconImage(bullToolbarIcon.getImage());
 
 		// ACTION LISTENERS
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
+					//Access file
 					fileIO fio = new fileIO("add_user.txt");
-					
+
+					//Authenticate user using CSV data and put it into a User object
 					User authenticatedUser = fio.authenticate(userField.getText(), passField.getText());
-					
+
+					//If there is a user in the list
 					if (authenticatedUser != null) {
+						Double portfolioBalance = 0.0;
+
+						//Create a stock data instance for the user by reading the CSV
+						HashMap<String,Integer> newMap = fio.readStockData(authenticatedUser);
+						
+						//Assign that stock data to the user
+						authenticatedUser.setStockData(newMap);
+
+						try {
+							if (!newMap.isEmpty()) {
+								// Iterates through each pair in the hashmap
+								Iterator hmIterator = (authenticatedUser.getStockData()).entrySet().iterator();
+
+								//Loops for each pair in the hashmap
+								while (hmIterator.hasNext()) {
+									//Gets an individual element
+									Map.Entry mapElement = (Map.Entry)hmIterator.next();
+									
+									//Retrieves stock price for the current stock symbol (i.e., AAPL, TSLA, AMZN, etc.)
+									Stock s = YahooFinance.get(mapElement.getKey().toString());
+									
+									//Take the stock symbol, multiply it by # of shares, and add to portfolioBalance
+									portfolioBalance += (s.getQuote().getPrice()).doubleValue() * Integer.parseInt(mapElement.getValue().toString());
+								}
+								
+								//Assign portfolioBalance to user object
+								authenticatedUser.setPortfolioBalance(portfolioBalance);
+							}
+						} catch (UnknownHostException ukHostEx) {
+							ukHostEx.printStackTrace();
+							JOptionPane.showMessageDialog(null, "ERROR! Please connect to the internet!", "Login",JOptionPane.WARNING_MESSAGE);
+						}
+
+						//Pass user object and create Dashboard instance
 						Dashboard d = new Dashboard(authenticatedUser);						
 						loginFrame.setVisible(false);
 						loginFrame.dispose();
-					
-						//hashmap testing
-						HashMap<String, Integer> testMap = new HashMap<String, Integer>();
-						testMap.put("AAPL", 1);
-						testMap.put("GOOG", 2);
-						testMap.put("AAPL", 10000000);
-						testMap.put("YAHOO", 500);
-						fio.addStockData(authenticatedUser, testMap);
-						
-						HashMap<String,Integer> newMap = fio.readStockData(authenticatedUser);
 					} else {
+						//If user is not found in CSV
 						JOptionPane.showMessageDialog(null, "ERROR! User not found", "Login",JOptionPane.WARNING_MESSAGE);
 					}
 				} catch (IOException | CsvException e1) {

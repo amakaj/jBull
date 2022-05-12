@@ -5,7 +5,7 @@ import java.util.HashMap;
 public class User {
 
 	String firstName, lastName, username, password, email;
-	Double cashBalance;
+	Double cashBalance, portfolioBalance;
 	HashMap<String, Integer> stockData;
 	
 	public User(String fn, String ln, String u, String pw, String e)
@@ -16,6 +16,7 @@ public class User {
 		this.password = pw;
 		this.email = e;
 		this.cashBalance = 1000.0;
+		this.portfolioBalance = 0.0;
 	}
 	
 	public User (String fn, String ln, String u, String pw, String e, HashMap<String, Integer> stockData) {
@@ -25,6 +26,7 @@ public class User {
 		this.password = pw;
 		this.email = e;
 		this.cashBalance = 1000.0;
+		this.portfolioBalance = 0.0;
 		this.stockData = stockData;
 	}
 	
@@ -35,6 +37,7 @@ public class User {
 			this.username = inputUserData[2];
 			this.password = inputUserData[3];
 			this.cashBalance = 1000.0;
+			this.portfolioBalance = 0.0;
 			this.email = inputUserData[4];
 		}
 	}
@@ -63,6 +66,10 @@ public class User {
 		return cashBalance;
 	}
 	
+	public Double getPortfolioBalance() {
+		return portfolioBalance;
+	}
+	
 	public HashMap<String, Integer> getStockData() {
 		return stockData;
 	}
@@ -89,6 +96,10 @@ public class User {
 	
 	public void setCashBalance(Double inputCashBalance) {
 		cashBalance = inputCashBalance;
+	}
+	
+	public void setPortfolioBalance(Double inputPortfolioBalance) {
+		portfolioBalance = inputPortfolioBalance;
 	}
 	
 	public void setStockData(HashMap<String, Integer> inputStockData) {

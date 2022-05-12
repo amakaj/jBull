@@ -68,11 +68,10 @@ public class fileIO {
 	
 	public void addStockData(User s, HashMap<String, Integer> h) throws IOException, CsvException
 	{
+		//Converts hashtable to String[] in order to write to CSV
 		String[] convertedMap = new String[h.size()*2];
 		String[] userData = new String[6];
 		int i = 0, j = 1;
-		int currentIndex = 0;
-		
 		
 		for (Map.Entry<String, Integer> pair : h.entrySet()) {
 			convertedMap[i] = pair.getKey();
@@ -81,24 +80,29 @@ public class fileIO {
 			j+=2;
 		}
 		
+		/*We're going to take all of the items out of the file, put it into a List<String[]>,
+		 * remove the user for whom the stock data is being changed, modify it, append it into a
+		 * new String[], and then reinsert it back into the list, then rewrite all of the data
+		 * back to the file
+		 */
+		
+		//Open the file for reading the entire file
 		FileReader fileReaderInitial = new FileReader(fileName);
 		CSVReader csvReaderInitial = new CSVReader(fileReaderInitial);
-		String[] nextRecord;
-		
 		List<String[]> tempList = csvReaderInitial.readAll();
+		
 		csvReaderInitial.close();
 		fileReaderInitial.close();
 		
+		//Open the file for reading each line
+		String[] nextRecord;
 		FileReader fileReader = new FileReader(fileName);
 		CSVReader csvReader = new CSVReader(fileReader);
 		
+		//Will iterate through the CSV for each line, as long as it exists
 		while ((nextRecord = csvReader.readNext()) != null) {
 			if ((s.getUsername()).equals(nextRecord[2]) && ((s.getPassword()).equals(nextRecord[3]))) {
-				/*We're going to take all of the items out of the file, put it into a List<String[]>,
-				 * remove the user for whom the stock data is being changed, modify it, append it into a
-				 * new String[], and then reinsert it back into the list, then rewrite all of the data
-				 * back to the file
-				 */
+
 				userData[0] = s.getFirstName();
 				userData[1] = s.getLastName();
 				userData[2] = s.getUsername();
@@ -106,8 +110,10 @@ public class fileIO {
 				userData[4] = s.getEmail();
 				userData[5] = s.getCashBalance().toString();
 				
+				//Puts user data and stock data together on one String[]
 				String[] appendedStringArr = Arrays.copyOf(userData, userData.length + convertedMap.length);
 				System.arraycopy(convertedMap, 0, appendedStringArr, userData.length, convertedMap.length);
+				
 				
 				tempList.removeIf(element -> (element[2].equals(s.getUsername()) && element[3].equals(s.getPassword())));
 				tempList.add(appendedStringArr);
@@ -123,7 +129,6 @@ public class fileIO {
 				writer.close();
 				return;
 			}
-			currentIndex++;
 		}
 	}
 
