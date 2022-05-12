@@ -38,8 +38,9 @@ public class BuySell {
 	private static JLabel portfolioBalanceLabel;
 	private static JLabel cashBalanceLabel;
 	private static JLabel totalBalanceLabel;
+	public static User currentUser;
 
-	public static Double updateBalances(User currentUser) throws IOException {
+	public static void updateBalances() throws IOException {
 		HashMap<String, Integer> stockDataNew = currentUser.getStockData();
 
 		if (!stockDataNew.isEmpty()) {
@@ -66,11 +67,9 @@ public class BuySell {
 		portfolioBalanceLabel.setText("Portfolio Balance: $" + String.format("%.2f", currentUser.getPortfolioBalance()));
 		cashBalanceLabel.setText("Cash Balance: $" + String.format("%.2f", currentUser.getCashBalance()));
 		totalBalanceLabel.setText("Total Balance: $" + String.format("%.2f", (currentUser.getPortfolioBalance() + currentUser.getCashBalance())));
-		
-		return currentUser.getPortfolioBalance();
 	}
 
-	public static void updateTable(User currentUser) {
+	public static void updateTable() {
 		HashMap<String, Integer> stockDataNew = currentUser.getStockData();
 		//Show current list of User Stocks
 		String[] columnName = {"Symbol", "# of Shares","Price/Share ($)"};
@@ -110,7 +109,9 @@ public class BuySell {
 		stockTableModel.fireTableDataChanged();
 	}
 
-	public BuySell(User currentUser) {
+	public BuySell(User inputUser) {
+		currentUser = inputUser;
+		
 		// Frame creation
 		JFrame frame = new JFrame("Buy/Sell");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -133,7 +134,7 @@ public class BuySell {
 
 		HashMap<String, Integer> stockData = currentUser.getStockData();
 
-		updateTable(currentUser);
+		updateTable();
 
 		JScrollPane stockTableScrollPane = new JScrollPane();
 		stockTableScrollPane.setBounds(211, 70, 239, 251);
@@ -237,9 +238,8 @@ public class BuySell {
 						currentUser.setStockData(stockData);
 
 						try {
-							Double newPortfolioBalance = updateBalances(currentUser);
-							currentUser.setPortfolioBalance(newPortfolioBalance);
-							updateTable(currentUser);
+							updateBalances();
+							updateTable();
 						} catch (IOException ex) {
 							ex.printStackTrace();
 						}
@@ -251,9 +251,8 @@ public class BuySell {
 						currentUser.setStockData(stockData);
 
 						try {
-							Double newPortfolioBalance = updateBalances(currentUser);
-							currentUser.setPortfolioBalance(newPortfolioBalance);
-							updateTable(currentUser);
+							updateBalances();
+							updateTable();
 						} catch (IOException ex) {
 							ex.printStackTrace();
 						}
@@ -284,9 +283,8 @@ public class BuySell {
 					currentUser.setStockData(stockData);
 
 					try {
-						Double newPortfolioBalance = updateBalances(currentUser);
-						currentUser.setPortfolioBalance(newPortfolioBalance);
-						updateTable(currentUser);
+						updateBalances();
+						updateTable();
 					} catch (IOException ex) {
 						ex.printStackTrace();
 					}
