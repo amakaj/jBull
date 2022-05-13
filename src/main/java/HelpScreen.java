@@ -49,7 +49,13 @@ public class HelpScreen {
 				.getImage().getScaledInstance(500, 400, Image.SCALE_DEFAULT)));
 		frame.getContentPane().add(help_login);
 		
-		JLabel lblNewLabel = new JLabel("<html>\n <h2>Login Screen</h2> \n<h3> <b>Desc </b>: The login screen is where the user will login to the application  </h3>\n<figure>\n<figcaption> Feautures </figcaption>\n <ul> \n    <li>Username/Email: The user will type their username/email here to login</li> \n    <li>Password: The user will type their password here to login </li> \n   <li>Login Button: This is what the user will press after entering their username and password</li>\n   <li>Create Button: If the user does not have an account, the user will press this button to create one </li> \n </ul>\n</figure>\n</html> \n\n");
+		JLabel lblNewLabel = new JLabel("<html>\n <h2>Login Screen</h2> \n<h3> <b>Desc </b>: The login screen is where the "
+				+ "user will login to the application  </h3>\n<figure>\n<figcaption> Feautures </figcaption>\n <ul> \n    "
+				+ "<li>Username/Email: The user will type their username/email here to login</li> \n    "
+				+ "<li>Password: The user will type their password here to login </li> \n   <li>Login Button: "
+				+ "This is what the user will press after entering their username and password</li>\n   "
+				+ "<li>Create Button: If the user does not have an account, the user will press this button to create one </li> "
+				+ "\n </ul>\n</figure>\n</html> \n\n");
 		lblNewLabel.setFont(new Font("Lucida Grande", Font.PLAIN, 10));
 		lblNewLabel.setVerticalAlignment(SwingConstants.TOP);
 		lblNewLabel.setBounds(565, 124, 329, 300);
