@@ -35,10 +35,8 @@ public class Dashboard {
 		try {
 			// 127.0.0.1 and localhost aren't working
 			clientSocket = new Socket(inputIPAdr, inputPort);
-
 			outToServer = new DataOutputStream(clientSocket.getOutputStream());
 			inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
 			rc = true;
 		} catch (ConnectException ex) {
 			ex.printStackTrace();
@@ -442,7 +440,20 @@ public class Dashboard {
 				frame.dispose();
 			}
 		});
+		
+		help.addActionListener(new ActionListener() {
 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				frame.setVisible(false);
+				HelpScreen h1 = new HelpScreen(currentUser);
+				frame.dispose();
+				
+			}
+			
+		});
+		
 		editProfile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ProfileScreen p = new ProfileScreen();
@@ -472,5 +483,6 @@ public class Dashboard {
 				System.exit(0);
 			}
 		});
+		
 	}
 }
