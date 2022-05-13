@@ -456,7 +456,10 @@ public class Dashboard {
 		
 		editProfile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ProfileScreen p = new ProfileScreen();
+				frame.setVisible(false);
+				UserProfileScreen p = new UserProfileScreen(currentUser);
+				frame.dispose();
+				
 			}
 		});
 
