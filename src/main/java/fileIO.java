@@ -40,6 +40,34 @@ public class fileIO {
 		writer.flush();
 	}
 	
+	public ArrayList<User> readAllUserData() throws CsvValidationException, IOException {
+		FileReader fileReader = new FileReader(fileName);
+		CSVReader csvReader = new CSVReader(fileReader);
+		String[] nextRecord;
+		
+		
+		ArrayList<User> listOfUsers = new ArrayList<User>();
+		
+		while ((nextRecord = csvReader.readNext()) != null) {
+			HashMap<String, Integer> userMap = new HashMap<String, Integer>();
+			
+			String firstName = nextRecord[0];
+			String lastName = nextRecord[1];
+			String username = nextRecord[2];
+			String password = nextRecord[3];
+			String email = nextRecord[4];
+			Double cashBalance = Double.parseDouble(nextRecord[5]);
+				
+			int j = 7;
+			for (int i = 6; i < nextRecord.length; i+=2) {
+				userMap.put(nextRecord[i], Integer.parseInt(nextRecord[j]));
+				j+=2;
+			}
+			listOfUsers.add(new User(firstName, lastName, username, password, email, cashBalance, userMap));
+		}
+		return listOfUsers;
+	}
+	
 	public HashMap<String, Integer> readStockData(User s) throws IOException, FileNotFoundException, CsvValidationException
 	{
 		HashMap<String, Integer> outputMap = new HashMap<String, Integer>();
@@ -126,7 +154,7 @@ public class fileIO {
 		}
 	}
 
-	public void readFromCSV() throws IOException, CsvValidationException {
+	public void printCSV() throws IOException, CsvValidationException {
 		// Create an object of filereader
 		// class with CSV file as a parameter.
 		FileReader filereader = new FileReader(fileName);
@@ -160,7 +188,28 @@ public class fileIO {
 
 			//check for username or email
 			if (nextRecord != null && ((nextRecord[2].equals(username) || nextRecord[4].equals(username)) && nextRecord[3].equals(password))) {
-				return (new User(nextRecord[0], nextRecord[1], nextRecord[2], nextRecord[3], nextRecord[4]));
+				return (new User(nextRecord[0], nextRecord[1], nextRecord[2], nextRecord[3], nextRecord[4], Double.parseDouble(nextRecord[5])));
+			}
+			currentIndex++;
+		}
+		return null;
+	}
+	
+	public User retrieveUserFromName(String firstName, String lastName) throws CsvValidationException, IOException {
+		FileReader fr = new FileReader(fileName);
+		CSVReader csvReader = new CSVReader(fr);
+		String[] nextRecord = null;
+		String returnString = null;
+		int currentIndex = 0;
+		
+		while (returnString == null) {
+			if ((nextRecord = csvReader.readNext()) == null) {
+				return null;
+			}
+
+			//check for username or email
+			if (nextRecord != null && ((nextRecord[0].equals(firstName) && nextRecord[1].equals(lastName)))) {
+				return (new User(nextRecord[0], nextRecord[1], nextRecord[2], nextRecord[3], nextRecord[4], Double.parseDouble(nextRecord[5])));
 			}
 			currentIndex++;
 		}

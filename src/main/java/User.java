@@ -1,44 +1,54 @@
 package main.java;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class User {
+public class User implements Serializable {
 
 	String firstName, lastName, username, password, email;
 	Double cashBalance, portfolioBalance;
 	HashMap<String, Integer> stockData;
 	
-	public User(String fn, String ln, String u, String pw, String e)
+	public User(String fn, String ln, String u, String pw, String e, Double cB)
 	{
 		this.firstName = fn;
 		this.lastName = ln;
 		this.username = u;
 		this.password = pw;
 		this.email = e;
-		this.cashBalance = 1000.0;
+		if (cB == null) {
+			this.cashBalance = 1000.0;
+		} else {
+			this.cashBalance = cB;
+		}
 		this.portfolioBalance = 0.0;
 	}
 	
-	public User (String fn, String ln, String u, String pw, String e, HashMap<String, Integer> stockData) {
+	public User (String fn, String ln, String u, String pw, String e, Double cB, HashMap<String, Integer> stockData) {
 		this.firstName = fn;
 		this.lastName = ln;
 		this.username = u;
 		this.password = pw;
 		this.email = e;
-		this.cashBalance = 1000.0;
+		if (cB == null) {
+			this.cashBalance = 1000.0;
+		} else {
+			this.cashBalance = cB;
+		}
 		this.portfolioBalance = 0.0;
 		this.stockData = stockData;
 	}
 	
 	public User (String[] inputUserData) {
-		if (inputUserData.length == 5) {
+		if (inputUserData.length == 6) {
 			this.firstName = inputUserData[0];
 			this.lastName = inputUserData[1];	
 			this.username = inputUserData[2];
 			this.password = inputUserData[3];
-			this.cashBalance = 1000.0;
+
 			this.portfolioBalance = 0.0;
 			this.email = inputUserData[4];
+			this.cashBalance = Double.parseDouble(inputUserData[5]);
 		}
 	}
 	

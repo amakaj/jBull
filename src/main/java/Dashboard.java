@@ -26,17 +26,20 @@ import org.jfree.data.general.DefaultPieDataset;
 public class Dashboard {
 	//SOCKET SERVER CODE
 	Socket clientSocket = null;
-	DataOutputStream outToServer = null;
+	ObjectOutputStream outToServer = null;
 	BufferedReader inFromServer = null;
 	public static boolean connectedToSocket;
+	
+	public static final String SERVER_IP_TO_CONNECT_TO = "172.17.80.1";
 
 	public boolean socketConnect(String inputIPAdr, int inputPort) {
 		boolean rc = false;
 		try {
 			// 127.0.0.1 and localhost aren't working
 			clientSocket = new Socket(inputIPAdr, inputPort);
-			outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
+			//			inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
 			rc = true;
 		} catch (ConnectException ex) {
 			ex.printStackTrace();
@@ -52,11 +55,11 @@ public class Dashboard {
 		return rc;
 	}
 
-	public boolean sendMessage(String msg) {
+	public boolean sendObject(User userObj) {
 		boolean rc = false;
 
 		try {
-			outToServer.writeBytes(msg + "\r\n");
+			outToServer.writeObject(userObj);
 			rc = true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -166,29 +169,25 @@ public class Dashboard {
 		frame.getContentPane().add(panel1);
 
 		serverMessageField = new JTextField();
-		serverMessageField.setBounds(25, 20, 210, 20);
+		serverMessageField.setBounds(53, 26, 210, 20);
 		panel1.add(serverMessageField);
 		serverMessageField.setColumns(10);
 
-		JButton connectBtn = new JButton("Connect");
+		JButton connectBtn = new JButton("Connect and Send Object");
 		connectBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				createClientThread("10.101.22.106", 3333);
-			}
-		});
-		connectBtn.setBounds(247, 17, 161, 23);
-		panel1.add(connectBtn);
-
-		JButton sendMsgBtn = new JButton("Send message");
-		sendMsgBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (connectedToSocket) {
-					sendMessage(serverMessageField.getText());
+				if (serverMessageField.getText() != null && !serverMessageField.getText().equals("")) {
+					try {
+						createClientThread(serverMessageField.getText(), 3333);
+						sendObject(currentUser);
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
 				}
 			}
 		});
-		sendMsgBtn.setBounds(411, 16, 133, 23);
-		panel1.add(sendMsgBtn);
+		connectBtn.setBounds(273, 25, 195, 23);
+		panel1.add(connectBtn);
 
 		JLabel portfolioBalanceLabel = new JLabel("Portfolio Balance: $---");
 		portfolioBalanceLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -271,7 +270,7 @@ public class Dashboard {
 		top20StocksLabel.setBounds(16, 281, 304, 28);
 		panel2.add(top20StocksLabel);
 
-		String[] columnName2 = { "Symbol", "Price" };
+		String[] columnName2 = { "Symbol", "Price/Share ($)" };
 
 		//PARSING HASHMAP DATA INTO TABLE
 		Object[][] topStocksData = {{"AAPL", 0.0}, {"MSFT", 0.0}, {"AMZN", 0.0}, {"TSLA", 0.0}, {"GOOG", 0.0}, {"NVDA", 0.0}, {"NFLX", 0.0}, {"FB", 0.0}, {"UNH", 0.0}, {"JNJ", 0.0}, {"JPM", 0.0}, {"V", 0.0}, {"PG", 0.0}, {"XOM", 0.0}, {"HD", 0.0}, {"CVX", 0.0}, {"MA", 0.0}, {"BAC", 0.0}, {"ABBV", 0.0}};
@@ -364,10 +363,10 @@ public class Dashboard {
 		menubar.add(profileName);
 		menubar.add(profileIconLabel);
 		startClock();
-		
+
 		//PIE CHART CODE
 		DefaultPieDataset pieDataset = new DefaultPieDataset();
-		
+
 		//insert cash balance first, then iterate through hashmap to insert each value
 		pieDataset.setValue("Cash Balance", currentUser.getCashBalance());
 
@@ -382,7 +381,7 @@ public class Dashboard {
 					Stock s = YahooFinance.get(hmElement.getKey().toString());
 					String symbol = hmElement.getKey().toString();
 					Integer numOfShares = (Integer) hmElement.getValue();
-					
+
 					Double stockPrice = numOfShares * (s.getQuote().getPrice().doubleValue());
 
 					pieDataset.setValue(symbol, stockPrice);
@@ -392,46 +391,52 @@ public class Dashboard {
 
 			}
 		}	
-		
+
 		JFreeChart pChart = ChartFactory.createPieChart(null, pieDataset, false, false, false);
 		ChartPanel cPanel = new ChartPanel(pChart);
-		
+
 		pChart.getPlot().setBackgroundPaint(Color.WHITE);
-		
+
 		cPanel.setSize(534,400);
 		cPanel.setLocation(10,112);
 		panel1.add(cPanel);
-		
+
 		JLabel portfolioBalanceLabelText = new JLabel("Portfolio Balance");
 		portfolioBalanceLabelText.setHorizontalAlignment(SwingConstants.CENTER);
 		portfolioBalanceLabelText.setFont(new Font("Arial", Font.BOLD, 16));
 		portfolioBalanceLabelText.setBounds(10, 54, 142, 28);
 		panel1.add(portfolioBalanceLabelText);
-		
+
 		JSeparator topBalanceSeparator = new JSeparator();
 		topBalanceSeparator.setBounds(10, 51, 534, 2);
 		panel1.add(topBalanceSeparator);
-		
+
 		JLabel cashBalanceLabelText = new JLabel("Cash Balance");
 		cashBalanceLabelText.setHorizontalAlignment(SwingConstants.CENTER);
 		cashBalanceLabelText.setFont(new Font("Arial", Font.BOLD, 16));
 		cashBalanceLabelText.setBounds(162, 54, 142, 28);
 		panel1.add(cashBalanceLabelText);
-		
+
 		JLabel totalBalanceLabelText = new JLabel("Total Balance");
 		totalBalanceLabelText.setHorizontalAlignment(SwingConstants.CENTER);
 		totalBalanceLabelText.setFont(new Font("Arial", Font.BOLD, 16));
 		totalBalanceLabelText.setBounds(378, 54, 142, 28);
 		panel1.add(totalBalanceLabelText);
-		
+
 		JSeparator bottomBalanceSeparator = new JSeparator();
 		bottomBalanceSeparator.setBounds(10, 109, 534, 2);
 		panel1.add(bottomBalanceSeparator);
-		
+
 		JSeparator middleBalanceSeparator = new JSeparator();
 		middleBalanceSeparator.setOrientation(SwingConstants.VERTICAL);
 		middleBalanceSeparator.setBounds(344, 51, 2, 58);
 		panel1.add(middleBalanceSeparator);
+
+		JLabel connectToServerInstruction = new JLabel("Interested in connecting to a server? Enter the IP Address here!");
+		connectToServerInstruction.setHorizontalAlignment(SwingConstants.CENTER);
+		connectToServerInstruction.setFont(new Font("Arial", Font.PLAIN, 14));
+		connectToServerInstruction.setBounds(53, 5, 437, 20);
+		panel1.add(connectToServerInstruction);
 
 		logout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -440,7 +445,7 @@ public class Dashboard {
 				frame.dispose();
 			}
 		});
-		
+
 		help.addActionListener(new ActionListener() {
 
 			@Override
@@ -449,11 +454,11 @@ public class Dashboard {
 				frame.setVisible(false);
 				HelpScreen h1 = new HelpScreen(currentUser);
 				frame.dispose();
-				
+
 			}
-			
+
 		});
-		
+
 		editProfile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ProfileScreen p = new ProfileScreen();
@@ -470,7 +475,7 @@ public class Dashboard {
 						e1.printStackTrace();
 					}
 				}
-				
+
 				try {
 					fileIO fio = new fileIO("add_user.txt");
 					fio.addStockData(currentUser, stockData);
@@ -483,6 +488,6 @@ public class Dashboard {
 				System.exit(0);
 			}
 		});
-		
+
 	}
 }

@@ -174,7 +174,6 @@ public class AccountCreation {
 				{
 					JOptionPane.showMessageDialog(null, "SUCCESS! Account was successfully created!");
 					valid_info = true;
-
 				}
 
 				firstNameField.setText("");
@@ -185,7 +184,7 @@ public class AccountCreation {
 
 				if(valid_email == true & valid_info == true)
 				{
-					User userObj = new User(firstName, lastName, username_string,password_string, email_string);
+					User userObj = new User(firstName, lastName, username_string,password_string, email_string, null);
 					try {
 						fileIO fio = new fileIO("add_user.txt");
 						fio.addtoCSV(userObj);

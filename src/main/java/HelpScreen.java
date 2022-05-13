@@ -32,8 +32,10 @@ public class HelpScreen {
 		frame.setSize(900, 600);
 		frame.setResizable(false);
 		frame.setBounds(100, 100, 900, 600);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
+		
+		
 		
 		JPanel container = new JPanel();
 		
@@ -46,21 +48,23 @@ public class HelpScreen {
 		container.setBackground(Color.WHITE);
 
 		
-		JLabel jBullIcon = new JLabel("");
-		jBullIcon.setBounds(43, 6, 98, 106);
-		jBullIcon.setIcon(new ImageIcon(new ImageIcon(LoginScreen.class.getResource("/main/resources/bull.png"))
-				.getImage().getScaledInstance(90, 90, Image.SCALE_DEFAULT)));
-		container.add(jBullIcon);
+		JLabel jBullIconLabel = new JLabel("");
+		ImageIcon jBullIcon = new ImageIcon(new ImageIcon(LoginScreen.class.getResource("/main/resources/bull.png"))
+				.getImage().getScaledInstance(90, 90, Image.SCALE_DEFAULT));
+		jBullIconLabel.setBounds(43, 6, 98, 106);
+		jBullIconLabel.setIcon(jBullIcon);
+		container.add(jBullIconLabel);
+		frame.setIconImage(jBullIcon.getImage());
 	
 		
 		JLabel Titled = new JLabel("<html>\n<h1> Developed By Anthony, Lamia, Ibrahim and Imu</h1>\n<hr/>\nSoftware Engineering <br/>\nSpring 2022\n</html>");
 		Titled.setVerticalAlignment(SwingConstants.TOP);
 		Titled.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
-		Titled.setBounds(153, 6, 588, 106);
+		Titled.setBounds(153, 6, 588, 119);
 		container.add(Titled);
 		
 		JLabel help_login = new JLabel("");
-		help_login.setBounds(19, 124, 500, 400);
+		help_login.setBounds(19, 139, 500, 400);
 		help_login.setIcon(new ImageIcon(new ImageIcon(LoginScreen.class.getResource("/main/resources/help_login.jpeg"))
 				.getImage().getScaledInstance(500, 400, Image.SCALE_DEFAULT)));
 		
@@ -72,20 +76,20 @@ public class HelpScreen {
 		container.add(help_login);
 		container.add(help_register);
 		
-		JLabel help_desc = new JLabel("<html>\n <h2>Login Screen</h2> \n<h3> <b>Desc </b>: The login screen is where the "
-				+ "user will login to the application  </h3>\n<figure>\n<figcaption> Feautures </figcaption>\n <ul> \n    "
+		JLabel help_desc = new JLabel("<html>\n <h2>Login Screen</h2> \n<h3>  The login screen is where the "
+				+ "user will login to the application  </h3>\n<figure>\n<figcaption> Features </figcaption>\n <ul> \n    "
 				+ "<li>Username/Email: The user will type their username/email here to login</li> \n    "
 				+ "<li>Password: The user will type their password here to login </li> \n   <li>Login Button: "
 				+ "This is what the user will press after entering their username and password</li>\n   "
 				+ "<li>Create Button: If the user does not have an account, the user will press this button to create one </li> "
 				+ "\n </ul>\n</figure>\n</html> \n\n");
-		help_desc.setFont(new Font("Lucida Grande", Font.PLAIN, 10));
+		help_desc.setFont(new Font("Lucida Grande", Font.PLAIN, 14));
 		help_desc.setVerticalAlignment(SwingConstants.TOP);
 		help_desc.setBounds(531, 124, 329, 300);
 		container.add(help_desc);
 		
-		JLabel register_desc = new JLabel("<html>\n <h2>Register Screen</h2> \n<h3> <b>Desc </b>: The register screen is where the user will create their account if they dont have one already</h3>\n<figure>\n<figcaption> Feautures </figcaption>\n <ul> \n    <li>First Name: The user will type their first name</li> \n    <li>Last Name: The user will type their last name </li> \n   <li>Username:  The user will create their username</li>\n   <li>Password: The user will create their password </li> \n   <li>Email: The user will create their email</li>\n   <li>Back to Login: The user will press this button to return to login screen</li>\n   <li>Create: The user will press this button to register their account</li> \n </ul>\n</figure>\n</html> \n\n");
-		register_desc.setFont(new Font("Lucida Grande", Font.PLAIN, 10));
+		JLabel register_desc = new JLabel("<html>\n <h2>Register Screen</h2> \n<h3> The register screen is where the user will create their account if they dont have one already</h3>\n<figure>\n<figcaption> Feautures </figcaption>\n <ul> \n    <li>First Name: The user will type their first name</li> \n    <li>Last Name: The user will type their last name </li> \n   <li>Username:  The user will create their username</li>\n   <li>Password: The user will create their password </li> \n   <li>Email: The user will create their email</li>\n   <li>Back to Login: The user will press this button to return to login screen</li>\n   <li>Create: The user will press this button to register their account</li> \n </ul>\n</figure>\n</html> \n\n");
+		register_desc.setFont(new Font("Lucida Grande", Font.PLAIN, 14));
 		register_desc.setVerticalAlignment(SwingConstants.TOP);
 		register_desc.setBounds(531, 550, 329, 300);
 		container.add(register_desc);
