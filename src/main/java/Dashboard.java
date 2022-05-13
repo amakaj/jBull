@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +20,8 @@ import java.net.*;
 import yahoofinance.YahooFinance;
 import yahoofinance.Stock;
 import javax.swing.border.LineBorder;
+import org.jfree.chart.*;
+import org.jfree.data.general.DefaultPieDataset;
 
 public class Dashboard {
 	//SOCKET SERVER CODE
@@ -81,7 +83,7 @@ public class Dashboard {
 	// Menu bar must be accessible to all methods
 	JMenuBar menubar = new JMenuBar();
 	private JTable stockTable;
-	private JTable table_2;
+	private static JTable topStocksTable;
 	private JTextField serverMessageField;
 
 	// Takes button as parameter to match the style of the menu bar
@@ -111,6 +113,33 @@ public class Dashboard {
 			}
 		};
 		startClockThread.start();
+	}
+
+
+	public static void updateTopStocksTable(Object[][] topStocksDataInput) {
+		Thread updateTopStocksThread = new Thread() {
+			public void run() {
+				while(true) {
+					for (int i = 0; i < topStocksDataInput.length; i++) {
+						try {
+							Stock s = YahooFinance.get(topStocksDataInput[i][0].toString());
+							Double stockPrice = s.getQuote().getPrice().doubleValue();
+							topStocksDataInput[i][1] = stockPrice;
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						topStocksTable.revalidate();
+						topStocksTable.repaint();
+					}
+					try {
+						sleep(1000L);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+		updateTopStocksThread.start();
 	}
 
 
@@ -164,22 +193,25 @@ public class Dashboard {
 		panel1.add(sendMsgBtn);
 
 		JLabel portfolioBalanceLabel = new JLabel("Portfolio Balance: $---");
-		portfolioBalanceLabel.setFont(new Font("Arial", Font.BOLD, 18));
-		portfolioBalanceLabel.setBounds(25, 51, 515, 28);
+		portfolioBalanceLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		portfolioBalanceLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+		portfolioBalanceLabel.setBounds(25, 81, 106, 20);
 		panel1.add(portfolioBalanceLabel);
-		portfolioBalanceLabel.setText("Portfolio Balance: $" + currentUser.getPortfolioBalance());
+		portfolioBalanceLabel.setText(String.format("$%.2f", currentUser.getPortfolioBalance()));
 
 		JLabel cashBalanceLabel = new JLabel("Cash Balance: $---");
-		cashBalanceLabel.setFont(new Font("Arial", Font.BOLD, 18));
-		cashBalanceLabel.setBounds(25, 79, 519, 28);
+		cashBalanceLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		cashBalanceLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+		cashBalanceLabel.setBounds(177, 81, 106, 20);
 		panel1.add(cashBalanceLabel);
-		cashBalanceLabel.setText("Cash Balance: $" + currentUser.getCashBalance());
+		cashBalanceLabel.setText(String.format("$%.2f", currentUser.getCashBalance()));
 
 		JLabel totalBalanceLabel = new JLabel("Total Balance: $---");
-		totalBalanceLabel.setFont(new Font("Arial", Font.BOLD, 18));
-		totalBalanceLabel.setBounds(25, 107, 515, 28);
+		totalBalanceLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		totalBalanceLabel.setFont(new Font("Arial", Font.BOLD, 16));
+		totalBalanceLabel.setBounds(398, 80, 106, 20);
 		panel1.add(totalBalanceLabel);
-		totalBalanceLabel.setText("Total Balance: $" + (currentUser.getPortfolioBalance() + currentUser.getCashBalance()));
+		totalBalanceLabel.setText(String.format("$%.2f", (currentUser.getPortfolioBalance() + currentUser.getCashBalance())));
 
 
 		// List panel, which will display the stocks owned and the watchlist
@@ -189,10 +221,10 @@ public class Dashboard {
 		panel2.setBounds(550, 0, 450, 600);
 		frame.getContentPane().add(panel2);
 
-		JLabel lblNewLabel = new JLabel("Stocks");
-		lblNewLabel.setFont(new Font("Arial", Font.BOLD, 24));
-		lblNewLabel.setBounds(16, 27, 118, 28);
-		panel2.add(lblNewLabel);
+		JLabel stocksOwnedLabel = new JLabel("Stocks Owned");
+		stocksOwnedLabel.setFont(new Font("Arial", Font.BOLD, 24));
+		stocksOwnedLabel.setBounds(16, 27, 304, 28);
+		panel2.add(stocksOwnedLabel);
 
 		String[] columnName = {"Symbol", "# of Shares","Price/Share ($)"};
 		Object[][] data = new Object[stockData.size()][3];
@@ -236,22 +268,46 @@ public class Dashboard {
 		stockTable.setColumnSelectionAllowed(false);
 		stockTable.setDragEnabled(false);
 
-		JLabel top20StocksField = new JLabel("Top 20 Stocks");
-		top20StocksField.setFont(new Font("Arial", Font.BOLD, 24));
-		top20StocksField.setBounds(16, 281, 240, 28);
-		panel2.add(top20StocksField);
+		JLabel top20StocksLabel = new JLabel("Top 20 Stocks");
+		top20StocksLabel.setFont(new Font("Arial", Font.BOLD, 24));
+		top20StocksLabel.setBounds(16, 281, 304, 28);
+		panel2.add(top20StocksLabel);
 
-		String[] columnName2 = { "Stocks", "Price" };
-		Object[][] data2 = { { "DDOG", "$174.51" }, { "QMCO", "$3.02" }, { "TSLA", "$904.55" }, { "NVDA", "$258.24" },
-				{ "AFRM", "$58.82" }, { "SOFI", "$12.40" }, { "MSFT", "$56.78" }, { "AMD", "$125.77" },
-				{ "AAPL", "$134.50" }, { "MSFT", "$56.78" }, { "GOOG", "$107.06" }, { "AAPL", "$134.50" },
-				{ "MSFT", "$56.78" }, { "GOOG", "$107.06" }, { "AAPL", "$134.50" }, { "MSFT", "$56.78" } };
-		table_2 = new JTable(data2, columnName2);
-		table_2.setPreferredScrollableViewportSize(new Dimension(304, 249));
-		table_2.setBorder(new LineBorder(new Color(0, 0, 0), 2));
-		table_2.setBounds(16, 309, 304, 181);
-		table_2.setFillsViewportHeight(true);
-		panel2.add(table_2);
+		String[] columnName2 = { "Symbol", "Price" };
+
+		//PARSING HASHMAP DATA INTO TABLE
+		Object[][] topStocksData = {{"AAPL", 0.0}, {"MSFT", 0.0}, {"AMZN", 0.0}, {"TSLA", 0.0}, {"GOOG", 0.0}, {"NVDA", 0.0}, {"NFLX", 0.0}, {"FB", 0.0}, {"UNH", 0.0}, {"JNJ", 0.0}, {"JPM", 0.0}, {"V", 0.0}, {"PG", 0.0}, {"XOM", 0.0}, {"HD", 0.0}, {"CVX", 0.0}, {"MA", 0.0}, {"BAC", 0.0}, {"ABBV", 0.0}};
+
+		//		code if only to update once
+		//		for (int i = 0; i < topStocksData.length; i++) {
+		//			try {
+		//				Stock s = YahooFinance.get(topStocksData[i][0].toString());
+		//				Double stockPrice = s.getQuote().getPrice().doubleValue();
+		//				
+		//				topStocksData[i][1] = stockPrice;
+		//			} catch (IOException e) {
+		//				e.printStackTrace();
+		//			}
+		//		}
+
+
+		JScrollPane topStocksScrollPane = new JScrollPane();
+		topStocksScrollPane.setBounds(16, 309, 304, 199);
+		panel2.add(topStocksScrollPane);
+
+		topStocksTable = new JTable(topStocksData, columnName2);
+		topStocksTable.setPreferredScrollableViewportSize(new Dimension(304, 249));
+		topStocksTable.setBorder(new LineBorder(new Color(0, 0, 0), 2));
+		topStocksTable.setBounds(16, 309, 304, 191);
+		topStocksTable.setFillsViewportHeight(true);
+		topStocksScrollPane.setViewportView(topStocksTable);
+		topStocksTable.setFocusable(false);
+		topStocksTable.setRowSelectionAllowed(false);
+		topStocksTable.setColumnSelectionAllowed(false);
+		topStocksTable.setDragEnabled(false);
+
+		updateTopStocksTable(topStocksData);
+
 
 		// Set the menu bar
 		frame.setJMenuBar(menubar);
@@ -275,18 +331,16 @@ public class Dashboard {
 		buySell.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				currentUser.setStockData(stockData);
-				
+
 				frame.setVisible(false);
 				BuySell bs = new BuySell(currentUser);
 				frame.dispose();
-				
+
 			}
 		});
-		JButton news = new JButton("News");
 		JButton help = new JButton("Help");
 
 		changeButtonStyle(buySell);
-		changeButtonStyle(news);
 		changeButtonStyle(help);
 
 		JLabel bullWhiteSpace = new JLabel("   ");
@@ -294,7 +348,6 @@ public class Dashboard {
 
 		menubar.add(bullIconLabel);
 		menubar.add(buySell);
-		menubar.add(news);
 		menubar.add(help);
 
 		// Menus aligned on the right
@@ -313,13 +366,74 @@ public class Dashboard {
 		menubar.add(profileName);
 		menubar.add(profileIconLabel);
 		startClock();
+		
+		//PIE CHART CODE
+		DefaultPieDataset pieDataset = new DefaultPieDataset();
+		
+		//insert cash balance first, then iterate through hashmap to insert each value
+		pieDataset.setValue("Cash Balance", currentUser.getCashBalance());
 
-		//ACTION LISTENERS
-		news.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				News n1 = new News();
+		if (!stockData.isEmpty()) {
+			//PARSING HASHMAP DATA INTO CHART
+			Iterator hashMapIterator = stockData.entrySet().iterator();
+
+			while (hashMapIterator.hasNext()) {
+				Map.Entry hmElement = (Map.Entry) hashMapIterator.next();
+
+				try {
+					Stock s = YahooFinance.get(hmElement.getKey().toString());
+					String symbol = hmElement.getKey().toString();
+					Integer numOfShares = (Integer) hmElement.getValue();
+					
+					Double stockPrice = numOfShares * (s.getQuote().getPrice().doubleValue());
+
+					pieDataset.setValue(symbol, stockPrice);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+
 			}
-		});
+		}	
+		
+		JFreeChart pChart = ChartFactory.createPieChart(null, pieDataset, false, false, false);
+		ChartPanel cPanel = new ChartPanel(pChart);
+		
+		pChart.getPlot().setBackgroundPaint(Color.WHITE);
+		
+		cPanel.setSize(534,400);
+		cPanel.setLocation(10,112);
+		panel1.add(cPanel);
+		
+		JLabel portfolioBalanceLabelText = new JLabel("Portfolio Balance");
+		portfolioBalanceLabelText.setHorizontalAlignment(SwingConstants.CENTER);
+		portfolioBalanceLabelText.setFont(new Font("Arial", Font.BOLD, 16));
+		portfolioBalanceLabelText.setBounds(10, 54, 142, 28);
+		panel1.add(portfolioBalanceLabelText);
+		
+		JSeparator topBalanceSeparator = new JSeparator();
+		topBalanceSeparator.setBounds(10, 51, 534, 2);
+		panel1.add(topBalanceSeparator);
+		
+		JLabel cashBalanceLabelText = new JLabel("Cash Balance");
+		cashBalanceLabelText.setHorizontalAlignment(SwingConstants.CENTER);
+		cashBalanceLabelText.setFont(new Font("Arial", Font.BOLD, 16));
+		cashBalanceLabelText.setBounds(162, 54, 142, 28);
+		panel1.add(cashBalanceLabelText);
+		
+		JLabel totalBalanceLabelText = new JLabel("Total Balance");
+		totalBalanceLabelText.setHorizontalAlignment(SwingConstants.CENTER);
+		totalBalanceLabelText.setFont(new Font("Arial", Font.BOLD, 16));
+		totalBalanceLabelText.setBounds(378, 54, 142, 28);
+		panel1.add(totalBalanceLabelText);
+		
+		JSeparator bottomBalanceSeparator = new JSeparator();
+		bottomBalanceSeparator.setBounds(10, 109, 534, 2);
+		panel1.add(bottomBalanceSeparator);
+		
+		JSeparator middleBalanceSeparator = new JSeparator();
+		middleBalanceSeparator.setOrientation(SwingConstants.VERTICAL);
+		middleBalanceSeparator.setBounds(344, 51, 2, 58);
+		panel1.add(middleBalanceSeparator);
 
 		logout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -345,7 +459,7 @@ public class Dashboard {
 						e1.printStackTrace();
 					}
 				}
-			
+				
 				try {
 					fileIO fio = new fileIO("add_user.txt");
 					fio.addStockData(currentUser, stockData);

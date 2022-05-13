@@ -152,14 +152,29 @@ public class AccountCreation {
 				String username_string = userField.getText().trim();
 				String password_string = passField.getText().trim();
 				String email_string = emailField.getText().trim();
+				boolean valid_email = false;
+				boolean valid_info = false;
+
+				if(email_string.contains("@") == false) {
+					JOptionPane.showMessageDialog(null, "ERROR! Not a valid email! Try Again!", "Account Creation",JOptionPane.WARNING_MESSAGE);
+				}
+				else
+				{
+					valid_email = true;
+				}
 
 				if((username_string == "" || username_string == null || username_string.length() == 0)
 						|| (password_string == "" || password_string == null || password_string.length() == 0)
-						|| (email_string == "" || email_string == null || email_string.length() == 0)
+						|| (email_string == "" || email_string == null || email_string.length() == 0 || valid_email == false)
 						|| (firstName == "" || firstName == null || firstName.length() == 0)
-						|| (lastName == "" || lastName == null || lastName.length() == 0))
+						|| (lastName == "" || lastName == null || lastName.length() == 0)) 
 				{
-					JOptionPane.showMessageDialog(null, "ERROR! All fields are required!", "Account Creation",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null, "ERROR! All fields are required and need to be valid!", "Account Creation",JOptionPane.WARNING_MESSAGE);
+				} else
+				{
+					JOptionPane.showMessageDialog(null, "SUCCESS! Account was successfully created!");
+					valid_info = true;
+
 				}
 
 				firstNameField.setText("");
@@ -168,15 +183,19 @@ public class AccountCreation {
 				passField.setText("");
 				emailField.setText("");
 
-				User userObj = new User(firstName, lastName, username_string,password_string, email_string);
-
-				try {
-					fileIO fio = new fileIO("add_user.txt");
-					fio.addtoCSV(userObj);
-				} catch (IOException e1) {
-					e1.printStackTrace();
+				if(valid_email == true & valid_info == true)
+				{
+					User userObj = new User(firstName, lastName, username_string,password_string, email_string);
+					try {
+						fileIO fio = new fileIO("add_user.txt");
+						fio.addtoCSV(userObj);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
 	}
 }
+
+
