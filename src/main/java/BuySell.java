@@ -63,9 +63,7 @@ public class BuySell {
 								} else {
 									priceLabel.setText("Price: $---");
 								}
-							} catch (IOException e) {
-								e.printStackTrace();
-							} catch (NullPointerException e) {
+							} catch (IOException|NullPointerException e) {
 								e.printStackTrace();
 							}
 						}
@@ -123,29 +121,29 @@ public class BuySell {
 	private static void updateTable() {
 		HashMap<String, Integer> stockDataNew = currentUser.getStockData();
 		DefaultTableModel stockTableModel;
-		
+
 		if (stockTable != null) { // if stocktable was found already
 			// get the model from stocktable
 			stockTableModel = (DefaultTableModel) stockTable.getModel();
 		} else {
 			//create a new model for stocktable
 			stockTableModel = new DefaultTableModel();
-			
+
 			//add columns
 			stockTableModel.addColumn("Symbol");
 			stockTableModel.addColumn("# of Shares");
 			stockTableModel.addColumn("Price/Share ($)");
 		}
-		
+
 		stockTableModel.getDataVector().removeAllElements();
-		
+
 		if (!stockDataNew.isEmpty()) {
 			//PARSING HASHMAP DATA
 			Iterator hashMapIterator = stockDataNew.entrySet().iterator();
-			
+
 			while (hashMapIterator.hasNext()) {
 				Map.Entry hmElement = (Map.Entry) hashMapIterator.next();
-				
+
 				try {
 					Stock s = YahooFinance.get(hmElement.getKey().toString());
 					String stockPrice = (s.getQuote().getPrice()).toString();
@@ -157,7 +155,7 @@ public class BuySell {
 		}
 		stockTable = new JTable(stockTableModel);
 		stockTableModel.fireTableDataChanged();
-		
+
 		stockTable.revalidate();
 		stockTable.repaint();
 	}
@@ -168,7 +166,7 @@ public class BuySell {
 		// buySellFrame creation
 		JFrame buySellFrame = new JFrame("Buy/Sell");
 		buySellFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		buySellFrame.setSize(476, 380);
+		buySellFrame.setSize(460, 361);
 		buySellFrame.setResizable(false);
 		buySellFrame.getContentPane().setLayout(null);
 
@@ -192,7 +190,7 @@ public class BuySell {
 		panel.add(stockTableScrollPane);
 
 		updateTable();
-		
+
 		stockTable.setFont(new Font("Arial", Font.PLAIN, 14));
 
 		stockTable.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -245,30 +243,29 @@ public class BuySell {
 		buyBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (stockSearchField.getText() != null && !stockSearchField.getText().equals("") && numOfSharesField.getText() != null && !numOfSharesField.getText().equals("") && (currentUser.getCashBalance() > priceOfFieldShare)) {
-					if (stockData.containsKey(stockSearchField.getText())) {
+					int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to buy " + numOfSharesField.getText() + " share(s) of " + stockSearchField.getText() + "?","Buy Share",JOptionPane.YES_NO_OPTION);
+					if(confirmed == JOptionPane.YES_OPTION)
+					{
+						if (stockData.containsKey(stockSearchField.getText())) {
 
-						int numOfStocks = stockData.get(stockSearchField.getText());
-						numOfStocks += Integer.parseInt(numOfSharesField.getText());
+							int numOfStocks = stockData.get(stockSearchField.getText());
+							numOfStocks += Integer.parseInt(numOfSharesField.getText());
 
-						stockData.put(stockSearchField.getText(), numOfStocks);
-						currentUser.setCashBalance(currentUser.getCashBalance()-priceOfFieldShare);
-						currentUser.setStockData(stockData);
-						System.out.println(currentUser.getPortfolioBalance());
+							stockData.put(stockSearchField.getText(), numOfStocks);
+							currentUser.setCashBalance(currentUser.getCashBalance()-priceOfFieldShare);
+							currentUser.setStockData(stockData);
 
-						updateBalances();
-						updateTable();
+							updateBalances();
+							updateTable();
 
-						System.out.println(currentUser.getPortfolioBalance());
+						} else if (!stockData.containsKey(stockSearchField.getText())) {
+							stockData.put(stockSearchField.getText(), Integer.parseInt(numOfSharesField.getText()));
+							currentUser.setCashBalance(currentUser.getCashBalance()-priceOfFieldShare);
+							currentUser.setStockData(stockData);
 
-
-					} else if (!stockData.containsKey(stockSearchField.getText())) {
-
-						stockData.put(stockSearchField.getText(), Integer.parseInt(numOfSharesField.getText()));
-						currentUser.setCashBalance(currentUser.getCashBalance()-priceOfFieldShare);
-						currentUser.setStockData(stockData);
-
-						updateBalances();
-						updateTable();
+							updateBalances();
+							updateTable();
+						}
 					}
 				}
 			}
@@ -280,22 +277,26 @@ public class BuySell {
 		sellBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (stockData.get(stockSearchField.getText()) != null && stockData.get(stockSearchField.getText()) >= Integer.parseInt(numOfSharesField.getText()) && priceOfFieldShare != null)  {
-					Integer numOfSharesCurrentlyOwned = stockData.get(stockSearchField.getText());
-					currentUser.setCashBalance(currentUser.getCashBalance()+priceOfFieldShare);
+					int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to sell " + numOfSharesField.getText() + " share(s) of " + stockSearchField.getText() + "?","Buy Share",JOptionPane.YES_NO_OPTION);
+					if(confirmed == JOptionPane.YES_OPTION)
+					{
+						Integer numOfSharesCurrentlyOwned = stockData.get(stockSearchField.getText());
+						currentUser.setCashBalance(currentUser.getCashBalance()+priceOfFieldShare);
 
-					Integer numOfSharesInField = Integer.parseInt(numOfSharesField.getText());
-					numOfSharesCurrentlyOwned = numOfSharesCurrentlyOwned - numOfSharesInField;
+						Integer numOfSharesInField = Integer.parseInt(numOfSharesField.getText());
+						numOfSharesCurrentlyOwned = numOfSharesCurrentlyOwned - numOfSharesInField;
 
-					if (numOfSharesCurrentlyOwned > 0) {
-						stockData.put(stockSearchField.getText(), numOfSharesCurrentlyOwned);
-					} else if (numOfSharesCurrentlyOwned == 0) {
-						stockData.remove(stockSearchField.getText());
+						if (numOfSharesCurrentlyOwned > 0) {
+							stockData.put(stockSearchField.getText(), numOfSharesCurrentlyOwned);
+						} else if (numOfSharesCurrentlyOwned == 0) {
+							stockData.remove(stockSearchField.getText());
+						}
+
+						currentUser.setStockData(stockData);
+
+						updateBalances();
+						updateTable();
 					}
-
-					currentUser.setStockData(stockData);
-
-					updateBalances();
-					updateTable();
 				}
 			}
 		});
@@ -322,7 +323,7 @@ public class BuySell {
 		// Display the window
 		buySellFrame.setVisible(true);
 		updatePrice();
-	
+
 		buySellFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				//Actions to take when window is closed

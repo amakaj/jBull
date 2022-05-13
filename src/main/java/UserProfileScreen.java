@@ -35,7 +35,11 @@ public class UserProfileScreen {
 		JLabel profile_icon = new JLabel("");
 		profile_icon.setBounds(17, 24, 97, 71);
 		profile_icon.setIcon(new ImageIcon(new ImageIcon(LoginScreen.class.getResource("/main/resources/profile.png")).getImage().getScaledInstance(70, 70, Image.SCALE_DEFAULT)));
+		ImageIcon bullIcon = new ImageIcon(new ImageIcon(getClass().getResource("/main/resources/bull.png")).getImage()
+				.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
 		frame.getContentPane().add(profile_icon);
+		
+		frame.setIconImage(bullIcon.getImage());
 		
 		JLabel username_field = new JLabel("New label");
 		username_field.setText(currentuser.getUsername());
@@ -99,7 +103,7 @@ public class UserProfileScreen {
 		email_field.setText(currentuser.getEmail());
 		email_field.setBounds(95, 13, 186, 26);
 		panel_2.add(email_field);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setVisible(true);
 		
 		frame.addWindowListener(new WindowAdapter() {

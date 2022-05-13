@@ -1,6 +1,23 @@
 package main.java;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -9,20 +26,24 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-
-import com.opencsv.exceptions.CsvValidationException;
-
-import yahoofinance.Stock;
-import yahoofinance.YahooFinance;
-
-import java.net.*;
-import java.io.*;
-
 
 public class Backend
 {
@@ -59,7 +80,7 @@ public class Backend
 	public static void startServerThread(Socket inputSocket) {
 		Thread serverThread = new Thread() {
 			public void run() {
-				User receivedUser;
+				User receivedUser = null;
 				String clientNumber;
 				String threadName = currentThread().getName();
 
@@ -79,6 +100,7 @@ public class Backend
 					updateConnectionList();
 
 					while (true) {
+
 						try {
 							receivedUser = (User) in.readObject();
 							listOfUserObjs.add(receivedUser);
@@ -94,9 +116,11 @@ public class Backend
 							 */
 							if (receivedUser == null || inputSocket.isClosed()) {
 								listOfConnections.remove(Integer.valueOf(clientNumber));
+								listOfUserObjs.remove(receivedUser);
 								inputSocket.close();
 
 								updateConnectionList();
+								updateUserList();
 								return; // we can exit thread by returning the run function
 							} else { //if the socket has not closed, then we allow for messages to come in
 								stringOfMessages += "\nUser" + clientNumber + ": " + receivedUser.getUsername();
@@ -104,9 +128,11 @@ public class Backend
 							}
 						} catch (EOFException e) {
 							listOfConnections.remove(Integer.valueOf(clientNumber));
+							listOfUserObjs.remove(receivedUser);
 							inputSocket.close();
 
 							updateConnectionList();
+							updateUserList();
 							return; // we can exit thread by returning the run function
 						}
 					}
@@ -274,6 +300,10 @@ public class Backend
 			userListModel.addElement(u.getFirstName() + " " + u.getLastName());
 			totalNumOfUsers++;
 		}
+
+		if (listOfUserObjs.size() == 0) {
+			totalNumOfUsers = 0;
+		}
 		lblTotal.setText("Total: " + totalNumOfUsers);
 
 		userList = new JList(userListModel);
@@ -290,14 +320,16 @@ public class Backend
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				System.out.println("SELECTED!");
-				String userFirstNameLastName = userList.getSelectedValue().toString();
-				String[] userNameArr = userFirstNameLastName.split(" ");
-				for (User u : listOfUserObjs) {
-					if (userNameArr[0].equals(u.getFirstName()) && userNameArr[1].equals(u.getLastName())) {
-						updateStockList(u);
-						userDataLabel.setVisible(true);
-						usernameLabel.setText("Username: " + u.getUsername());
-						emailLabel.setText("Email: " + u.getEmail());
+				if (userList.getSelectedValue() != null) {
+					String userFirstNameLastName = userList.getSelectedValue().toString();
+					String[] userNameArr = userFirstNameLastName.split(" ");
+					for (User u : listOfUserObjs) {
+						if (userNameArr[0].equals(u.getFirstName()) && userNameArr[1].equals(u.getLastName())) {
+							updateStockList(u);
+							userDataLabel.setVisible(true);
+							usernameLabel.setText("Username: " + u.getUsername());
+							emailLabel.setText("Email: " + u.getEmail());
+						}
 					}
 				}
 			}
@@ -311,9 +343,9 @@ public class Backend
 	{
 		//Frame Creation
 		JFrame frame = new JFrame("jBull Server");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(800, 500);
 		frame.setResizable(false);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 
 		JPanel leftPanel = new JPanel();
@@ -373,8 +405,8 @@ public class Backend
 		// Instantiate the image objects
 		ImageIcon bullIcon = new ImageIcon(new ImageIcon(getClass().getResource("/main/resources/bull.png")).getImage()
 				.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
-		ImageIcon blueSwooshIcon = new ImageIcon(new ImageIcon(getClass().getResource("/main/resources/blueswoosh.png")).getImage()
-				/*.getScaledInstance(30, 30, Image.SCALE_DEFAULT)*/);
+//		ImageIcon blueSwooshIcon = new ImageIcon(new ImageIcon(getClass().getResource("/main/resources/blueswoosh.png")).getImage()
+//				/*.getScaledInstance(30, 30, Image.SCALE_DEFAULT)*/);
 		frame.setIconImage(bullIcon.getImage());
 
 		//Add to menu bar
@@ -397,13 +429,13 @@ public class Backend
 		rightPanel.add(usernameLabel);
 
 		emailLabel = new JLabel("");
-		emailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+		emailLabel.setFont(new Font("Arial", Font.PLAIN, 12));
 		emailLabel.setBounds(283, 63, 185, 20);
 		rightPanel.add(emailLabel);
 
-		JLabel blueSwooshLabel = new JLabel(blueSwooshIcon);
-		leftPanel.add(blueSwooshLabel);
-		blueSwooshLabel.setBounds(-5, 300, 290, 149);
+//		JLabel blueSwooshLabel = new JLabel(blueSwooshIcon);
+//		leftPanel.add(blueSwooshLabel);
+//		blueSwooshLabel.setBounds(-5, 300, 290, 149);
 
 		usersListScrollPane = new JScrollPane();
 		usersListScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -429,9 +461,24 @@ public class Backend
 		rightPanel.add(stockTableScrollPane);
 
 		frame.setVisible(true);
+		
+		frame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?","EXIT",JOptionPane.YES_NO_OPTION);
+				if(confirmed == JOptionPane.YES_OPTION)
+				{
+					frame.dispose();
+					System.exit(0);
+				} else {
+					frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+				}
+			}
+		});
 
 		startClock();
 		startServer(3333);
+		
+
 	}
 	public static void main(String[] args) {
 		Backend b = new Backend();

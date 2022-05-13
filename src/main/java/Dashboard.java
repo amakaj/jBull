@@ -26,55 +26,59 @@ import org.jfree.data.general.DefaultPieDataset;
 public class Dashboard {
 	//SOCKET SERVER CODE
 	Socket clientSocket = null;
-	ObjectOutputStream outToServer = null;
-	BufferedReader inFromServer = null;
+	ObjectOutputStream outToServer;
 	public static boolean connectedToSocket;
-	
-	public static final String SERVER_IP_TO_CONNECT_TO = "172.17.80.1";
 
-	public boolean socketConnect(String inputIPAdr, int inputPort) {
-		boolean rc = false;
-		try {
-			// 127.0.0.1 and localhost aren't working
-			clientSocket = new Socket(inputIPAdr, inputPort);
-			outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
-			//			inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+	public static final String SERVER_IP_TO_CONNECT_TO = "10.88.54.176";
 
-			rc = true;
-		} catch (ConnectException ex) {
-			ex.printStackTrace();
-			return false;
-		} catch (UnknownHostException ex) {
-			ex.printStackTrace();
-			return false;
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			return false;
-		}
+	//	public boolean socketConnect(String inputIPAdr, int inputPort) {
+	//		boolean rc = false;
+	//		try {
+	//			// 127.0.0.1 and localhost aren't working
+	//			clientSocket = new Socket(inputIPAdr, inputPort);
+	//			outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
+	//			//			inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+	//
+	//			rc = true;
+	//		} catch (ConnectException ex) {
+	//			ex.printStackTrace();
+	//			return false;
+	//		} catch (UnknownHostException ex) {
+	//			ex.printStackTrace();
+	//			return false;
+	//		} catch (IOException ex) {
+	//			ex.printStackTrace();
+	//			return false;
+	//		}
+	//
+	//		return rc;
+	//	}
 
-		return rc;
-	}
+	//	public boolean sendObject(User userObj) {
+	//		boolean rc = false;
+	//
+	//		try {
+	//			outToServer.writeObject(userObj);
+	//			rc = true;
+	//		} catch (IOException e) {
+	//			e.printStackTrace();
+	//		}
+	//
+	//		return rc;
+	//	}
 
-	public boolean sendObject(User userObj) {
-		boolean rc = false;
-
-		try {
-			outToServer.writeObject(userObj);
-			rc = true;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return rc;
-	}
-
-	public void createClientThread(String inputAddr, int inputPort) {
+	public void createClientThread(String inputAddr, int inputPort, User clientUser) {
 		Thread connectThread = new Thread() {
 			public void run() {
-				if (!connectedToSocket) {
-					connectedToSocket = socketConnect(inputAddr, inputPort);
-				} else {
-					return;
+				try {
+
+					clientSocket = new Socket(inputAddr, inputPort);
+
+					outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
+					outToServer.writeObject(clientUser);
+
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 		};
@@ -143,7 +147,6 @@ public class Dashboard {
 		updateTopStocksThread.start();
 	}
 
-
 	public Dashboard(User currentUser) {
 		// Frame creation
 		JFrame frame = new JFrame("jBull");
@@ -168,26 +171,24 @@ public class Dashboard {
 		panel1.setBounds(0, 0, 550, 600);
 		frame.getContentPane().add(panel1);
 
-		serverMessageField = new JTextField();
-		serverMessageField.setBounds(53, 26, 210, 20);
-		panel1.add(serverMessageField);
-		serverMessageField.setColumns(10);
-
-		JButton connectBtn = new JButton("Connect and Send Object");
+		//		serverMessageField = new JTextField();
+		//		serverMessageField.setBounds(53, 26, 210, 20);
+		//		panel1.add(serverMessageField);
+		//		serverMessageField.setColumns(10);
+		//
+		JButton connectBtn = new JButton("Connect To Server");
 		connectBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (serverMessageField.getText() != null && !serverMessageField.getText().equals("")) {
-					try {
-						createClientThread(serverMessageField.getText(), 3333);
-						sendObject(currentUser);
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
+				try {
+					createClientThread(SERVER_IP_TO_CONNECT_TO, 3333, currentUser);
+				} catch (Exception ex) {
+					ex.printStackTrace();
 				}
 			}
 		});
-		connectBtn.setBounds(273, 25, 195, 23);
+		connectBtn.setBounds(6, 30, 195, 23);
 		panel1.add(connectBtn);
+
 
 		JLabel portfolioBalanceLabel = new JLabel("Portfolio Balance: $---");
 		portfolioBalanceLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -331,6 +332,16 @@ public class Dashboard {
 
 				frame.setVisible(false);
 				BuySell bs = new BuySell(currentUser);
+				
+				if (clientSocket != null && clientSocket.isConnected()) {
+					try {
+						clientSocket.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				
 				frame.dispose();
 
 			}
@@ -354,7 +365,7 @@ public class Dashboard {
 		profileName.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT); // items in the menu will open aligned
 		// to the right
 		// Menu items to be appended to profile menu
-		JMenuItem editProfile = new JMenuItem("Edit Profile");
+		JMenuItem editProfile = new JMenuItem("View Profile");
 		JMenuItem logout = new JMenuItem("Logout");
 
 		profileName.add(editProfile);
@@ -432,16 +443,20 @@ public class Dashboard {
 		middleBalanceSeparator.setBounds(344, 51, 2, 58);
 		panel1.add(middleBalanceSeparator);
 
-		JLabel connectToServerInstruction = new JLabel("Interested in connecting to a server? Enter the IP Address here!");
-		connectToServerInstruction.setHorizontalAlignment(SwingConstants.CENTER);
-		connectToServerInstruction.setFont(new Font("Arial", Font.PLAIN, 14));
-		connectToServerInstruction.setBounds(53, 5, 437, 20);
-		panel1.add(connectToServerInstruction);
-
 		logout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.setVisible(false);
 				LoginScreen l1 = new LoginScreen();
+				
+				if (clientSocket != null && clientSocket.isConnected()) {
+					try {
+						clientSocket.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				
 				frame.dispose();
 			}
 		});
@@ -453,6 +468,16 @@ public class Dashboard {
 				// TODO Auto-generated method stub
 				frame.setVisible(false);
 				HelpScreen h1 = new HelpScreen(currentUser);
+				
+				if (clientSocket != null && clientSocket.isConnected()) {
+					try {
+						clientSocket.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				
 				frame.dispose();
 
 			}
@@ -463,13 +488,7 @@ public class Dashboard {
 			public void actionPerformed(ActionEvent e) {
 				frame.setVisible(false);
 				UserProfileScreen p = new UserProfileScreen(currentUser);
-				frame.dispose();
 				
-			}
-		});
-
-		frame.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
 				if (clientSocket != null && clientSocket.isConnected()) {
 					try {
 						clientSocket.close();
@@ -478,19 +497,49 @@ public class Dashboard {
 						e1.printStackTrace();
 					}
 				}
-
-				try {
-					fileIO fio = new fileIO("add_user.txt");
-					fio.addStockData(currentUser, stockData);
-				} catch (IOException | CsvException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
+				
 				frame.dispose();
-				System.exit(0);
+
 			}
 		});
+
+		frame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?","EXIT",JOptionPane.YES_NO_OPTION);
+				if(confirmed == JOptionPane.YES_OPTION)
+				{
+					
+					if (clientSocket != null && clientSocket.isConnected()) {
+						try {
+							clientSocket.close();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+
+					try {
+						fileIO fio = new fileIO("add_user.txt");
+						fio.addStockData(currentUser, stockData);
+					} catch (IOException | CsvException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					frame.dispose();
+					System.exit(0);
+				} else {
+					frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+				}
+
+
+			}
+		});
+
+		try {
+			createClientThread(SERVER_IP_TO_CONNECT_TO, 3333, currentUser);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 
 	}
 }
