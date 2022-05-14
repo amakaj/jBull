@@ -1,39 +1,43 @@
+// jBull | Allows the user to begin their session by retrieving their stock data and user details
 package main.java;
 
-import javax.swing.*;
-
 import com.opencsv.exceptions.CsvException;
-
 import yahoofinance.*;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.io.IOException;
 import java.rmi.UnknownHostException;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.awt.event.ActionEvent;
 
 public class LoginScreen {
+	//Declaration of userField and passField
 	private JTextField userField;
 	private JPasswordField passField;
 
 	public LoginScreen() {
+		//Frame creation and modification
 		JFrame loginFrame = new JFrame("jBull Login");
-
 		loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		loginFrame.setSize(350, 500);
 		loginFrame.setResizable(false);
 		loginFrame.getContentPane().setLayout(null);
 
+		//Panel creation and modification
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
 		panel.setFont(new Font("SansSerif", Font.PLAIN, 35));
 		panel.setBounds(0, 0, 350, 472);
-		loginFrame.getContentPane().add(panel);
 		panel.setLayout(null);
+		loginFrame.getContentPane().add(panel);
 
+		//Creation of Labels
 		JLabel bulliconlabel = new JLabel();
 		bulliconlabel.setIcon(new ImageIcon(new ImageIcon(LoginScreen.class.getResource("/main/resources/bull.png"))
 				.getImage().getScaledInstance(125, 125, Image.SCALE_DEFAULT)));
@@ -50,20 +54,25 @@ public class LoginScreen {
 		userLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
 		userLabel.setBounds(37, 246, 263, 16);
 		panel.add(userLabel);
+		
+		JLabel passLabel = new JLabel("Password");
+		passLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
+		passLabel.setBounds(37, 296, 263, 16);
+		panel.add(passLabel);
 
+		//Creation of fields
 		userField = new JTextField();
 		userField.setBackground(Color.WHITE);
 		userField.setBounds(37, 265, 263, 20);
 		panel.add(userField);
 		userField.setColumns(10);
 
-		JLabel passLabel = new JLabel("Password");
-		passLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		passLabel.setBounds(37, 296, 263, 16);
-		panel.add(passLabel);
+		passField = new JPasswordField();
+		passField.setBounds(37, 314, 263, 20);
+		panel.add(passField);
 
+		//Creation of buttons
 		JButton loginButton = new JButton("Login");
-
 		loginButton.setForeground(Color.BLACK);
 		loginButton.setFont(new Font("SansSerif", Font.PLAIN, 20));
 		loginButton.setBackground(Color.WHITE);
@@ -77,18 +86,15 @@ public class LoginScreen {
 		createButton.setBounds(186, 364, 114, 41);
 		panel.add(createButton);
 
-		passField = new JPasswordField();
-		passField.setBounds(37, 314, 263, 20);
-		panel.add(passField);
-
 		loginFrame.setVisible(true);
 
+		//Retrieving bull image icon and assigning it to the frame
 		ImageIcon bullToolbarIcon = new ImageIcon(
 				new ImageIcon(getClass().getResource("/main/resources/bull.png")).getImage()
 				.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
 		loginFrame.setIconImage(bullToolbarIcon.getImage());
 
-		// ACTION LISTENERS
+		// Login action listener
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -128,9 +134,10 @@ public class LoginScreen {
 								//Assign portfolioBalance to user object
 								authenticatedUser.setPortfolioBalance(portfolioBalance);
 							}
-						} catch (UnknownHostException ukHostEx) {
+						} catch (UnknownHostException ukHostEx) { 
+							//If the host is unknown or the user is not connected to the internet
 							ukHostEx.printStackTrace();
-							JOptionPane.showMessageDialog(null, "ERROR! Please connect to the internet!", "Login",JOptionPane.WARNING_MESSAGE);
+							JOptionPane.showMessageDialog(null, "ERROR! Unknown host, please ensure that you are connected to the internet!", "Login",JOptionPane.WARNING_MESSAGE);
 						}
 
 						//Pass user object and create Dashboard instance
@@ -147,6 +154,7 @@ public class LoginScreen {
 			}
 		});
 
+		//Create button action listener will bring the user to the account creation screen
 		createButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				loginFrame.setVisible(false);

@@ -29,7 +29,7 @@ public class Dashboard {
 	ObjectOutputStream outToServer;
 	public static boolean connectedToSocket;
 
-	public static final String SERVER_IP_TO_CONNECT_TO = "10.88.52.145";
+	public static final String SERVER_IP_TO_CONNECT_TO = "172.17.80.1";
 
 	//	public boolean socketConnect(String inputIPAdr, int inputPort) {
 	//		boolean rc = false;

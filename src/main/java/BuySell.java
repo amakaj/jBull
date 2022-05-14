@@ -1,46 +1,47 @@
+// jBull | Allows the user to buy and sell stocks
 package main.java;
 
 import java.awt.Color;
-import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
-import com.opencsv.exceptions.CsvException;
-
-import yahoofinance.*;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.Date;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+
+import com.opencsv.exceptions.CsvException;
+
+import yahoofinance.Stock;
+import yahoofinance.YahooFinance;
 
 public class BuySell {
 	private JTextField stockSearchField;
 	private JTextField numOfSharesField;
-	private static JTable stockTable;
 	private JLabel priceLabel;
+
+	//Declaration of static variables
+	private static JTable stockTable;
 	private static JPanel panel;
-	static Double priceOfFieldShare;
+	private static Double priceOfFieldShare;
 	private static JLabel portfolioBalanceLabel;
 	private static JLabel cashBalanceLabel;
 	private static JLabel totalBalanceLabel;
@@ -48,15 +49,21 @@ public class BuySell {
 
 	private static User currentUser;
 
+	//Retrieves the symbol, specified number of shares, and uses the API to update the price every second
 	private void updatePrice() {
 		Thread startPriceThread = new Thread() {
 			public void run() {
 				while (true) {
 					try {
+						//If the fields are not null and have data in them
 						if ((numOfSharesField.getText() != null && !numOfSharesField.getText().equals("") && Integer.parseInt(numOfSharesField.getText()) > 0)
 								&& (stockSearchField.getText() != null && !stockSearchField.getText().equals(""))) {
 							try {
+								
+								//Retrieve the stock object using the symbol specified in the stock search field
 								Stock s = YahooFinance.get(stockSearchField.getText());
+								
+								//If a stock was found, get the price and multiply it by the specified number of shares
 								if (s != null) {
 									priceOfFieldShare = s.getQuote().getPrice().doubleValue() * Double.parseDouble(numOfSharesField.getText());
 									priceLabel.setText("Price: $" + String.format("%.2f", priceOfFieldShare));
@@ -72,7 +79,8 @@ public class BuySell {
 					}
 
 					try {
-						sleep(1000L);// sleep for 1 second
+						//halts the thread for one second so that it makes an API price request every second
+						sleep(1000L); 
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					} 
@@ -82,15 +90,19 @@ public class BuySell {
 		startPriceThread.start();
 	}
 
+	//Updates the user's balances, usually after the user has bought or sold share(s)
 	private static void updateBalances() {
+		//Passes the user's stock data into a HashMap, so that it could be manipulated
 		HashMap<String, Integer> stockDataNew = currentUser.getStockData();
 
+		//If the user has stocks,
 		if (!stockDataNew.isEmpty()) {
+			//portfolioBalance is not a part of the user object since it changes according to the stock price	
 			Double portfolioBalance = 0.0;
-			// Iterates through each pair in the hashmap
+			// Iterates through each pair in the HashMap
 			Iterator hmIterator = (currentUser.getStockData()).entrySet().iterator();
 
-			//Loops for each pair in the hashmap
+			//Loops for each pair in the HashMap
 			while (hmIterator.hasNext()) {
 				//Gets an individual element
 				Map.Entry mapElement = (Map.Entry)hmIterator.next();
@@ -113,49 +125,58 @@ public class BuySell {
 			currentUser.setPortfolioBalance(0.0);
 		}
 
+		//Set the balance fields using the appropriate data
 		portfolioBalanceLabel.setText("Portfolio Balance: $" + String.format("%.2f", currentUser.getPortfolioBalance()));
 		cashBalanceLabel.setText("Cash Balance: $" + String.format("%.2f", currentUser.getCashBalance()));
 		totalBalanceLabel.setText("Total Balance: $" + String.format("%.2f", (currentUser.getPortfolioBalance() + currentUser.getCashBalance())));
 	}
 
+	//Updates the user's table of owned stocks, typically after they have bought/sold share(s)
 	private static void updateTable() {
+		//Passes the user's stock data into a HashMap, so that it could be manipulated
 		HashMap<String, Integer> stockDataNew = currentUser.getStockData();
 		DefaultTableModel stockTableModel;
 
-		if (stockTable != null) { // if stocktable was found already
-			// get the model from stocktable
+		if (stockTable != null) { // If a stock table exists
+			// Get the model from stock table
 			stockTableModel = (DefaultTableModel) stockTable.getModel();
 		} else {
-			//create a new model for stocktable
+			// Create a new model for stocktable
 			stockTableModel = new DefaultTableModel();
 
-			//add columns
+			//Add columns to the model
 			stockTableModel.addColumn("Symbol");
 			stockTableModel.addColumn("# of Shares");
 			stockTableModel.addColumn("Price/Share ($)");
 		}
 
+		//Clear the model of all elements
 		stockTableModel.getDataVector().removeAllElements();
 
+		//If the user has stock data
 		if (!stockDataNew.isEmpty()) {
-			//PARSING HASHMAP DATA
+			//Create an iterator to go through each field of the Hash Map
 			Iterator hashMapIterator = stockDataNew.entrySet().iterator();
 
 			while (hashMapIterator.hasNext()) {
 				Map.Entry hmElement = (Map.Entry) hashMapIterator.next();
 
 				try {
+					//Retrieve a stock object and price for the given symbol
 					Stock s = YahooFinance.get(hmElement.getKey().toString());
 					String stockPrice = (s.getQuote().getPrice()).toString();
+					
+					//Add the data to the stock table model
 					stockTableModel.addRow(new Object[] {hmElement.getKey(), hmElement.getValue(), stockPrice});
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
 			}
 		}
+		
+		//Reinitialize, revalidate, and redraw the stock table with the new model
 		stockTable = new JTable(stockTableModel);
 		stockTableModel.fireTableDataChanged();
-
 		stockTable.revalidate();
 		stockTable.repaint();
 	}
@@ -163,7 +184,7 @@ public class BuySell {
 	public BuySell(User inputUser) {
 		currentUser = inputUser;
 
-		// buySellFrame creation
+		// Creation of Frame
 		JFrame buySellFrame = new JFrame("Buy/Sell");
 		buySellFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		buySellFrame.setSize(460, 361);
