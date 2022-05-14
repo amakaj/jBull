@@ -3,7 +3,7 @@ jBull is a **multithreaded**, **full-stack**, and **Agile-driven** Java team pro
 
 ### Libraries Used
 - **Swing/AWT** - Creating the GUI
-- **Java Sockets** - Connecting the client and server to allow for User objects to be passed between one another
+- **java.net** - Connecting the client and server to allow for User objects to be passed between one another
 - **YahooFinanceAPI** - Retrieving real-time stock data and displaying it to the user
 - **opencsv** - Reading and writing user/stock data to/from a file
 - **JFreeChart** - Creating a user dashboard pie chart that shows the distribution of shares amongst one another
