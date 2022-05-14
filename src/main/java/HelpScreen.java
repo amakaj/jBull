@@ -1,41 +1,30 @@
+// jBull | Displays Help Screen
 package main.java;
 
-import java.awt.EventQueue;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import java.awt.Font;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.SwingConstants;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 
 public class HelpScreen {
 
-	private JFrame frame;
-
-	/**
-	 * Create the application.
-	 */
 	public HelpScreen(User u) {
+		//Frame creation
 		JFrame frame = new JFrame("Help");
 		frame.setSize(900, 600);
 		frame.setResizable(false);
 		frame.setBounds(100, 100, 900, 600);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
-		
-		
 		
 		JPanel container = new JPanel();
 		
@@ -47,7 +36,6 @@ public class HelpScreen {
 		container.setLayout(null);
 		container.setBackground(Color.WHITE);
 
-		
 		JLabel jBullIconLabel = new JLabel("");
 		ImageIcon jBullIcon = new ImageIcon(new ImageIcon(LoginScreen.class.getResource("/main/resources/bull.png"))
 				.getImage().getScaledInstance(90, 90, Image.SCALE_DEFAULT));
@@ -56,7 +44,7 @@ public class HelpScreen {
 		container.add(jBullIconLabel);
 		frame.setIconImage(jBullIcon.getImage());
 	
-		
+		/*----------ALL DATA FOR HELP SCREEN----------*/
 		JLabel Titled = new JLabel("<html>\n<h1> Developed By Anthony, Lamia, Ibrahim and Imu</h1>\n<hr/>\nSoftware Engineering <br/>\nSpring 2022\n</html>");
 		Titled.setVerticalAlignment(SwingConstants.TOP);
 		Titled.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
@@ -116,9 +104,7 @@ public class HelpScreen {
 		JLabel buy_sell_desc = new JLabel("<html>\n <h2>Buy/Sell Screen</h2> \n<h3> the buy sell screen is where the user can buy and sell shares of stocks</h3>\n<figure>\n<figcaption> Feautures </figcaption>\n <ul> \n    <li>Stock Search:  This is where the user can search for stocks to add to their list</li> \n    <li>Price: This displays how much the stocks the user is buying: The price of the stock times number of shares </li> \n   <li>Buy: The user presses this to buy the stocks</li>\n   <li>Sell: The user presses this to sell the stocks</li> \n   <li>Stocks Owned: List of the stocks the user owns including number of shares and price per share</li>\n   <li>Porfolio Balance: Total value of the stocks the user owns</li>\n<li>Cash Balance: Total buying power user has left after buying stocks</li>\n<li>Total Balance: The total amount of assets; portfolio balance plus cash balance</li>\n\n\n </ul>\n</figure>\n</html> \n\n");
 		buy_sell_desc.setBounds(531, 1700, 329, 300);
 		container.add(buy_sell_desc);
-		
-		
-		
+				
 		JLabel profile = new JLabel();
 		profile.setBounds(19,2100,400,400);
 		profile.setIcon(new ImageIcon(new ImageIcon(LoginScreen.class.getResource("/main/resources/profile.jpeg"))
@@ -129,10 +115,10 @@ public class HelpScreen {
 		profile_desc.setBounds(531, 2100, 329, 300);
 		container.add(profile_desc);
 
-		
 		frame.getContentPane().add(jScrollPane);
 		frame.setVisible(true);
 		
+		//Frame window listener to bring user back to dashboard
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				frame.setVisible(false);

@@ -1,9 +1,11 @@
+// jBull | Handles the operations for reading and writing data for a user to a file
 package main.java;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,18 +22,21 @@ public class fileIO {
 	CSVWriter writer = null;
 	ArrayList<String[]> data = new ArrayList<String[]>();
 
+	//Default constructor - should not be used
 	public fileIO() throws IOException
 	{
 		fileName="transactionLog.csv"; 
 		writer = new CSVWriter(new FileWriter(fileName,true));
 	}
 
+	//Constructor to write a string to a new file - should not be used
 	public fileIO(String fn) throws IOException
 	{
 		fileName = fn;
 		writer = new CSVWriter(new FileWriter(fileName,true));
 	}
 
+	//Add initial user data to the CSV
 	public void addtoCSV(User s) throws IOException
 	{
 		String[] a = {s.getFirstName(), s.getLastName(), s.getUsername(),s.getPassword(),s.getEmail(), (s.getCashBalance()).toString()};
@@ -40,12 +45,14 @@ public class fileIO {
 		writer.flush();
 	}
 	
+	//Reads the entire CSV file and returns an arraylist of all fields
 	public ArrayList<User> readAllUserData() throws CsvValidationException, IOException {
+		//Instantiates objects for storing temporary file data and reading file
 		FileReader fileReader = new FileReader(fileName);
 		CSVReader csvReader = new CSVReader(fileReader);
 		String[] nextRecord;
 		
-		
+		//Creates listOfUsers object to return towards the end
 		ArrayList<User> listOfUsers = new ArrayList<User>();
 		
 		while ((nextRecord = csvReader.readNext()) != null) {
@@ -68,15 +75,18 @@ public class fileIO {
 		return listOfUsers;
 	}
 	
+	//Reads the stock data from the CSV for a given user and returns a HashMap<String, Integer>
 	public HashMap<String, Integer> readStockData(User s) throws IOException, FileNotFoundException, CsvValidationException
 	{
 		HashMap<String, Integer> outputMap = new HashMap<String, Integer>();
 		
+		//Instantiates objects for storing temporary file data and reading file
 		FileReader fileReader = new FileReader(fileName);
 		CSVReader csvReader = new CSVReader(fileReader);
 		String[] nextRecord, stockData;
 		
 		while ((nextRecord = csvReader.readNext()) != null) {
+			//If the username and password match the data from the user object "s", put all stock data onto outputMap, and return outputMap
 			if ((s.getUsername()).equals(nextRecord[2]) && ((s.getPassword()).equals(nextRecord[3]))) {
 				int j = 7;
 				for (int i = 6; i < nextRecord.length; i+=2) {
@@ -88,6 +98,7 @@ public class fileIO {
 		return outputMap;
 	}
 	
+	//Adds stock data to a given user object, using a HashMap
 	public void addStockData(User s, HashMap<String, Integer> h) throws IOException, CsvException
 	{
 		//Converts hashtable to String[] in order to write to CSV
@@ -154,6 +165,7 @@ public class fileIO {
 		}
 	}
 
+	//Prints the CSV to System.out
 	public void printCSV() throws IOException, CsvValidationException {
 		// Create an object of filereader
 		// class with CSV file as a parameter.
@@ -173,15 +185,19 @@ public class fileIO {
 		}
 	}
 
+	//Authenticates user and returns a User object
 	public User authenticate(String username, String password) throws IOException, CsvValidationException {
+		//Opens file
 		FileReader fr = new FileReader(fileName);
 
+		//Instantiates objects for storing temporary file data and reading file
 		CSVReader csvReader = new CSVReader(fr);
 		String[] nextRecord = null;
 		String returnString = null;
 		int currentIndex = 0;
 
 		while (returnString == null) {
+			//If there is no data in the field
 			if ((nextRecord = csvReader.readNext()) == null) {
 				return null;
 			}
@@ -195,6 +211,7 @@ public class fileIO {
 		return null;
 	}
 	
+	//Returns a user object given a firstname and lastname
 	public User retrieveUserFromName(String firstName, String lastName) throws CsvValidationException, IOException {
 		FileReader fr = new FileReader(fileName);
 		CSVReader csvReader = new CSVReader(fr);
@@ -203,6 +220,7 @@ public class fileIO {
 		int currentIndex = 0;
 		
 		while (returnString == null) {
+			//If there is no data in the field
 			if ((nextRecord = csvReader.readNext()) == null) {
 				return null;
 			}

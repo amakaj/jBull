@@ -1,82 +1,77 @@
+// jBull | Displays the user's dashboard
 package main.java;
 
-import javax.swing.*;
-import javax.swing.border.MatteBorder;
-
-import com.opencsv.exceptions.CsvException;
-
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.event.ActionListener;
+import java.awt.Color;
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
+
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.io.*;
-import java.net.*;
 
-import yahoofinance.YahooFinance;
-import yahoofinance.Stock;
-import javax.swing.border.LineBorder;
-import org.jfree.chart.*;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 
+import com.opencsv.exceptions.CsvException;
+
+import yahoofinance.Stock;
+import yahoofinance.YahooFinance;
+
 public class Dashboard {
-	//SOCKET SERVER CODE
+	JMenuBar menubar = new JMenuBar();
+	private JTable stockTable;
+	private static JTable topStocksTable;
+	private JTextField serverMessageField;
+	
+	/*----------------SERVER CODE----------------*/
+	
+	//Creation of socket objects/variables
 	Socket clientSocket = null;
 	ObjectOutputStream outToServer;
 	public static boolean connectedToSocket;
 
+	//Specifies the server's IP address for the client to connect to
 	public static final String SERVER_IP_TO_CONNECT_TO = "172.17.80.1";
 
-	//	public boolean socketConnect(String inputIPAdr, int inputPort) {
-	//		boolean rc = false;
-	//		try {
-	//			// 127.0.0.1 and localhost aren't working
-	//			clientSocket = new Socket(inputIPAdr, inputPort);
-	//			outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
-	//			//			inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-	//
-	//			rc = true;
-	//		} catch (ConnectException ex) {
-	//			ex.printStackTrace();
-	//			return false;
-	//		} catch (UnknownHostException ex) {
-	//			ex.printStackTrace();
-	//			return false;
-	//		} catch (IOException ex) {
-	//			ex.printStackTrace();
-	//			return false;
-	//		}
-	//
-	//		return rc;
-	//	}
-
-	//	public boolean sendObject(User userObj) {
-	//		boolean rc = false;
-	//
-	//		try {
-	//			outToServer.writeObject(userObj);
-	//			rc = true;
-	//		} catch (IOException e) {
-	//			e.printStackTrace();
-	//		}
-	//
-	//		return rc;
-	//	}
-
+	//Creates a client thread to handle the connection to the server
 	public void createClientThread(String inputAddr, int inputPort, User clientUser) {
 		Thread connectThread = new Thread() {
 			public void run() {
 				try {
-
+					//Creates a client socket and sends the clientUser object to the server
 					clientSocket = new Socket(inputAddr, inputPort);
-
 					outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
 					outToServer.writeObject(clientUser);
-
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -85,11 +80,7 @@ public class Dashboard {
 		connectThread.start();
 	}
 
-	// Menu bar must be accessible to all methods
-	JMenuBar menubar = new JMenuBar();
-	private JTable stockTable;
-	private static JTable topStocksTable;
-	private JTextField serverMessageField;
+	/*----------------END SERVER CODE----------------*/
 
 	// Takes button as parameter to match the style of the menu bar
 	private void changeButtonStyle(JButton button) {
@@ -121,10 +112,12 @@ public class Dashboard {
 	}
 
 
+	//Updates the Top 20 stocks table on the dashboard every second
 	public static void updateTopStocksTable(Object[][] topStocksDataInput) {
 		Thread updateTopStocksThread = new Thread() {
 			public void run() {
 				while(true) {
+					//For each stock in the input, get the price and apply it to the table again
 					for (int i = 0; i < topStocksDataInput.length; i++) {
 						try {
 							Stock s = YahooFinance.get(topStocksDataInput[i][0].toString());
@@ -133,10 +126,12 @@ public class Dashboard {
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
+						
 						topStocksTable.revalidate();
 						topStocksTable.repaint();
 					}
 					try {
+						// update every second (usually 1 second behind system clock)
 						sleep(1000L);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -158,25 +153,18 @@ public class Dashboard {
 		// Display the window
 		frame.setVisible(true);
 
+		//Retrieves stock data from the current user object
 		HashMap<String, Integer> stockData = currentUser.getStockData();
 
-		// Graph panel, which will display the graph
-		ImageIcon stock = new ImageIcon(
-				new ImageIcon(getClass().getResource("/main/resources/Stock_Graph.jpeg")).getImage()
-				.getScaledInstance(500, 400, Image.SCALE_DEFAULT));
-		Font font = new Font("Courier", Font.BOLD, 15);
+		// Creation of panel
 		JPanel panel1 = new JPanel();
 		panel1.setLayout(null);
 		panel1.setBackground(Color.WHITE);
 		panel1.setBounds(0, 0, 550, 600);
 		frame.getContentPane().add(panel1);
 
-		//		serverMessageField = new JTextField();
-		//		serverMessageField.setBounds(53, 26, 210, 20);
-		//		panel1.add(serverMessageField);
-		//		serverMessageField.setColumns(10);
-		//
-		JButton connectBtn = new JButton("Connect To Server");
+		//Attempts a reconnection to the server
+		JButton connectBtn = new JButton("Attempt Server Connection");
 		connectBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -189,7 +177,14 @@ public class Dashboard {
 		connectBtn.setBounds(6, 30, 195, 23);
 		panel1.add(connectBtn);
 
-
+		// List panel, which will display the stocks owned and the watchlist
+		JPanel panel2 = new JPanel();
+		panel2.setBackground(Color.WHITE);
+		panel2.setLayout(null);
+		panel2.setBounds(550, 0, 450, 600);
+		frame.getContentPane().add(panel2);
+		
+		//Creation of labels
 		JLabel portfolioBalanceLabel = new JLabel("Portfolio Balance: $---");
 		portfolioBalanceLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		portfolioBalanceLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -211,24 +206,17 @@ public class Dashboard {
 		panel1.add(totalBalanceLabel);
 		totalBalanceLabel.setText(String.format("$%.2f", (currentUser.getPortfolioBalance() + currentUser.getCashBalance())));
 
-
-		// List panel, which will display the stocks owned and the watchlist
-		JPanel panel2 = new JPanel();
-		panel2.setBackground(Color.WHITE);
-		panel2.setLayout(null);
-		panel2.setBounds(550, 0, 450, 600);
-		frame.getContentPane().add(panel2);
-
 		JLabel stocksOwnedLabel = new JLabel("Stocks Owned");
 		stocksOwnedLabel.setFont(new Font("Arial", Font.BOLD, 24));
 		stocksOwnedLabel.setBounds(16, 27, 304, 28);
 		panel2.add(stocksOwnedLabel);
 
+		//Parsing data into top 20 stocks list
 		String[] columnName = {"Symbol", "# of Shares","Price/Share ($)"};
 		Object[][] data = new Object[stockData.size()][3];
 
 		if (!stockData.isEmpty()) {
-			//PARSING HASHMAP DATA INTO TABLE
+			//Creating hash map iterator to go through each field, get the price, and append it to the second column along with each stock
 			Iterator hashMapIterator = stockData.entrySet().iterator();
 			int tableIndex = 0;
 
@@ -275,19 +263,6 @@ public class Dashboard {
 
 		//PARSING HASHMAP DATA INTO TABLE
 		Object[][] topStocksData = {{"AAPL", 0.0}, {"MSFT", 0.0}, {"AMZN", 0.0}, {"TSLA", 0.0}, {"GOOG", 0.0}, {"NVDA", 0.0}, {"NFLX", 0.0}, {"FB", 0.0}, {"UNH", 0.0}, {"JNJ", 0.0}, {"JPM", 0.0}, {"V", 0.0}, {"PG", 0.0}, {"XOM", 0.0}, {"HD", 0.0}, {"CVX", 0.0}, {"MA", 0.0}, {"BAC", 0.0}, {"ABBV", 0.0}};
-
-		//		code if only to update once
-		//		for (int i = 0; i < topStocksData.length; i++) {
-		//			try {
-		//				Stock s = YahooFinance.get(topStocksData[i][0].toString());
-		//				Double stockPrice = s.getQuote().getPrice().doubleValue();
-		//				
-		//				topStocksData[i][1] = stockPrice;
-		//			} catch (IOException e) {
-		//				e.printStackTrace();
-		//			}
-		//		}
-
 
 		JScrollPane topStocksScrollPane = new JScrollPane();
 		topStocksScrollPane.setBounds(16, 309, 304, 199);
@@ -362,8 +337,7 @@ public class Dashboard {
 		menubar.add(Box.createHorizontalGlue()); // Separates right and left
 		JMenu profileName;
 		profileName = new JMenu(currentUser.getFirstName());
-		profileName.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT); // items in the menu will open aligned
-		// to the right
+		profileName.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT); // items in the menu will open aligned to the right
 		// Menu items to be appended to profile menu
 		JMenuItem editProfile = new JMenuItem("View Profile");
 		JMenuItem logout = new JMenuItem("Logout");
@@ -412,15 +386,12 @@ public class Dashboard {
 		cPanel.setLocation(10,112);
 		panel1.add(cPanel);
 
+		//Creation of labels and separators above the chart
 		JLabel portfolioBalanceLabelText = new JLabel("Portfolio Balance");
 		portfolioBalanceLabelText.setHorizontalAlignment(SwingConstants.CENTER);
 		portfolioBalanceLabelText.setFont(new Font("Arial", Font.BOLD, 16));
 		portfolioBalanceLabelText.setBounds(10, 54, 142, 28);
 		panel1.add(portfolioBalanceLabelText);
-
-		JSeparator topBalanceSeparator = new JSeparator();
-		topBalanceSeparator.setBounds(10, 51, 534, 2);
-		panel1.add(topBalanceSeparator);
 
 		JLabel cashBalanceLabelText = new JLabel("Cash Balance");
 		cashBalanceLabelText.setHorizontalAlignment(SwingConstants.CENTER);
@@ -433,6 +404,10 @@ public class Dashboard {
 		totalBalanceLabelText.setFont(new Font("Arial", Font.BOLD, 16));
 		totalBalanceLabelText.setBounds(378, 54, 142, 28);
 		panel1.add(totalBalanceLabelText);
+		
+		JSeparator topBalanceSeparator = new JSeparator();
+		topBalanceSeparator.setBounds(10, 51, 534, 2);
+		panel1.add(topBalanceSeparator);
 
 		JSeparator bottomBalanceSeparator = new JSeparator();
 		bottomBalanceSeparator.setBounds(10, 109, 534, 2);
@@ -443,11 +418,13 @@ public class Dashboard {
 		middleBalanceSeparator.setBounds(344, 51, 2, 58);
 		panel1.add(middleBalanceSeparator);
 
+		//Logout button action listener
 		logout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.setVisible(false);
 				LoginScreen l1 = new LoginScreen();
 				
+				//If the dashboard is connected to the server, close the connection
 				if (clientSocket != null && clientSocket.isConnected()) {
 					try {
 						clientSocket.close();
@@ -461,14 +438,14 @@ public class Dashboard {
 			}
 		});
 
+		//Help button action listener
 		help.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				frame.setVisible(false);
 				HelpScreen h1 = new HelpScreen(currentUser);
 				
+				//If the dashboard is connected to the server, close the connection
 				if (clientSocket != null && clientSocket.isConnected()) {
 					try {
 						clientSocket.close();
@@ -484,11 +461,13 @@ public class Dashboard {
 
 		});
 
+		//View profile action listener
 		editProfile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.setVisible(false);
 				UserProfileScreen p = new UserProfileScreen(currentUser);
 				
+				//If the dashboard is connected to the server, close the connection
 				if (clientSocket != null && clientSocket.isConnected()) {
 					try {
 						clientSocket.close();
@@ -503,12 +482,14 @@ public class Dashboard {
 			}
 		});
 
+		//Frame window listener to perform actions when user exits
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
+				//Throw exit confirmation
 				int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?","EXIT",JOptionPane.YES_NO_OPTION);
 				if(confirmed == JOptionPane.YES_OPTION)
 				{
-					
+					//If the dashboard is connected to the server, close the connection
 					if (clientSocket != null && clientSocket.isConnected()) {
 						try {
 							clientSocket.close();
@@ -518,6 +499,7 @@ public class Dashboard {
 						}
 					}
 
+					//Write stock data for user to file
 					try {
 						fileIO fio = new fileIO("add_user.txt");
 						fio.addStockData(currentUser, stockData);
@@ -535,11 +517,11 @@ public class Dashboard {
 			}
 		});
 
+		//Try to connect to the server
 		try {
 			createClientThread(SERVER_IP_TO_CONNECT_TO, 3333, currentUser);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-
 	}
 }

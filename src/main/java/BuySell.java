@@ -59,10 +59,10 @@ public class BuySell {
 						if ((numOfSharesField.getText() != null && !numOfSharesField.getText().equals("") && Integer.parseInt(numOfSharesField.getText()) > 0)
 								&& (stockSearchField.getText() != null && !stockSearchField.getText().equals(""))) {
 							try {
-								
+
 								//Retrieve the stock object using the symbol specified in the stock search field
 								Stock s = YahooFinance.get(stockSearchField.getText());
-								
+
 								//If a stock was found, get the price and multiply it by the specified number of shares
 								if (s != null) {
 									priceOfFieldShare = s.getQuote().getPrice().doubleValue() * Double.parseDouble(numOfSharesField.getText());
@@ -165,7 +165,7 @@ public class BuySell {
 					//Retrieve a stock object and price for the given symbol
 					Stock s = YahooFinance.get(hmElement.getKey().toString());
 					String stockPrice = (s.getQuote().getPrice()).toString();
-					
+
 					//Add the data to the stock table model
 					stockTableModel.addRow(new Object[] {hmElement.getKey(), hmElement.getValue(), stockPrice});
 				} catch (IOException e1) {
@@ -173,7 +173,7 @@ public class BuySell {
 				}
 			}
 		}
-		
+
 		//Reinitialize, revalidate, and redraw the stock table with the new model
 		stockTable = new JTable(stockTableModel);
 		stockTableModel.fireTableDataChanged();
@@ -191,11 +191,12 @@ public class BuySell {
 		buySellFrame.setResizable(false);
 		buySellFrame.getContentPane().setLayout(null);
 
+		//Creation of panel
 		panel = new JPanel();
 		panel.setBackground(Color.WHITE);
 		panel.setBounds(0, 0, 460, 341);
-		buySellFrame.getContentPane().add(panel);
 		panel.setLayout(null);
+		buySellFrame.getContentPane().add(panel);
 
 		// Instantiate the image objects
 		ImageIcon bullIcon = new ImageIcon(new ImageIcon(getClass().getResource("/main/resources/bull.png")).getImage()
@@ -204,8 +205,10 @@ public class BuySell {
 		// Set the icon image for the buySellFrame
 		buySellFrame.setIconImage(bullIcon.getImage());
 
+		//Retrieve the user's stock data 
 		HashMap<String, Integer> stockData = currentUser.getStockData();
 
+		//Creation of stock table scroll pane, object, and updating stock table
 		stockTableScrollPane = new JScrollPane();
 		stockTableScrollPane.setBounds(180, 70, 270, 251);
 		panel.add(stockTableScrollPane);
@@ -213,7 +216,6 @@ public class BuySell {
 		updateTable();
 
 		stockTable.setFont(new Font("Arial", Font.PLAIN, 14));
-
 		stockTable.setBorder(new LineBorder(new Color(0, 0, 0)));
 		stockTable.setPreferredScrollableViewportSize(new Dimension(304, 249));
 		stockTable.setFillsViewportHeight(true);
@@ -224,6 +226,7 @@ public class BuySell {
 		stockTable.setColumnSelectionAllowed(false);
 		stockTable.setDragEnabled(false);
 
+		//Label creation
 		JLabel stocksOwnedLabel = new JLabel("Stocks Owned");
 		stocksOwnedLabel.setBounds(180, 48, 145, 20);
 		stocksOwnedLabel.setFont(new Font("Arial", Font.BOLD, 16));
@@ -234,12 +237,6 @@ public class BuySell {
 		nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		panel.add(nameLabel);
 
-		stockSearchField = new JTextField();
-		stockSearchField.setBounds(20, 70, 145, 20);
-		panel.add(stockSearchField);
-		stockSearchField.setColumns(10);
-
-
 		JLabel searchStockLabel = new JLabel("Stock Search");
 		searchStockLabel.setBounds(20, 48, 145, 20);
 		searchStockLabel.setFont(new Font("Arial", Font.BOLD, 16));
@@ -249,6 +246,12 @@ public class BuySell {
 		numSharesLabel.setBounds(20, 95, 102, 20);
 		numSharesLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		panel.add(numSharesLabel);
+
+		//Field creation
+		stockSearchField = new JTextField();
+		stockSearchField.setBounds(20, 70, 145, 20);
+		panel.add(stockSearchField);
+		stockSearchField.setColumns(10);
 
 		numOfSharesField = new JTextField();
 		numOfSharesField.setBounds(123, 95, 42, 20);
@@ -263,27 +266,37 @@ public class BuySell {
 		JButton buyBtn = new JButton("Buy");
 		buyBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//If all fields have data and are not null
 				if (stockSearchField.getText() != null && !stockSearchField.getText().equals("") && numOfSharesField.getText() != null && !numOfSharesField.getText().equals("") && (currentUser.getCashBalance() > priceOfFieldShare)) {
+					
+					//Prompt user for confirmation
 					int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to buy " + numOfSharesField.getText() + " share(s) of " + stockSearchField.getText() + "?","Buy Share",JOptionPane.YES_NO_OPTION);
 					if(confirmed == JOptionPane.YES_OPTION)
 					{
+						//If the user's stock data contains the stock in the field
 						if (stockData.containsKey(stockSearchField.getText())) {
 
+							//Get the number of stocks that the user owns for the stock specified in the field
 							int numOfStocks = stockData.get(stockSearchField.getText());
 							numOfStocks += Integer.parseInt(numOfSharesField.getText());
 
+							//Reassign the number of shares in the HashMap for the specified stock after buying the share(s)
 							stockData.put(stockSearchField.getText(), numOfStocks);
 							currentUser.setCashBalance(currentUser.getCashBalance()-priceOfFieldShare);
 							currentUser.setStockData(stockData);
 
+							//Update the user's balances and table
 							updateBalances();
 							updateTable();
 
+							//If the user's stock data does not contain the stock in the field
 						} else if (!stockData.containsKey(stockSearchField.getText())) {
+							//Put the stock in the HashMap, along with the number of shares the user initially bought
 							stockData.put(stockSearchField.getText(), Integer.parseInt(numOfSharesField.getText()));
 							currentUser.setCashBalance(currentUser.getCashBalance()-priceOfFieldShare);
 							currentUser.setStockData(stockData);
 
+							//Update the user's balances and table
 							updateBalances();
 							updateTable();
 						}
@@ -297,24 +310,32 @@ public class BuySell {
 		JButton sellBtn = new JButton("Sell");
 		sellBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//If all fields have data and are not null
 				if (stockData.get(stockSearchField.getText()) != null && stockData.get(stockSearchField.getText()) >= Integer.parseInt(numOfSharesField.getText()) && priceOfFieldShare != null)  {
+					
+					//Prompt user for confirmation
 					int confirmed = JOptionPane.showConfirmDialog(null, "Are you sure you want to sell " + numOfSharesField.getText() + " share(s) of " + stockSearchField.getText() + "?","Buy Share",JOptionPane.YES_NO_OPTION);
 					if(confirmed == JOptionPane.YES_OPTION)
 					{
+						//Get the number of stocks that the user owns for the stock specified in the field
 						Integer numOfSharesCurrentlyOwned = stockData.get(stockSearchField.getText());
 						currentUser.setCashBalance(currentUser.getCashBalance()+priceOfFieldShare);
 
+						//Deduct the number of shares sold from the number of shares currently owned
 						Integer numOfSharesInField = Integer.parseInt(numOfSharesField.getText());
 						numOfSharesCurrentlyOwned = numOfSharesCurrentlyOwned - numOfSharesInField;
 
+						//Update the HashMap
 						if (numOfSharesCurrentlyOwned > 0) {
 							stockData.put(stockSearchField.getText(), numOfSharesCurrentlyOwned);
 						} else if (numOfSharesCurrentlyOwned == 0) {
 							stockData.remove(stockSearchField.getText());
 						}
 
+						//Assign the updated stock data to the current user
 						currentUser.setStockData(stockData);
 
+						//Update the user's balances and table
 						updateBalances();
 						updateTable();
 					}
@@ -324,6 +345,7 @@ public class BuySell {
 		sellBtn.setBounds(101, 152, 64, 23);
 		panel.add(sellBtn);
 
+		//Balance labels
 		portfolioBalanceLabel = new JLabel("Portfolio Balance: $---");
 		portfolioBalanceLabel.setBounds(20, 251, 181, 20);
 		portfolioBalanceLabel.setFont(new Font("Arial", Font.BOLD, 12));
@@ -340,14 +362,14 @@ public class BuySell {
 		panel.add(totalBalanceLabel);
 
 		updateBalances();
+		updatePrice();
 
 		// Display the window
 		buySellFrame.setVisible(true);
-		updatePrice();
 
+		//When buy/sell frame is closed, save the data to the file
 		buySellFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				//Actions to take when window is closed
 				try {
 					fileIO fio = new fileIO("add_user.txt");
 					fio.addStockData(currentUser, stockData);

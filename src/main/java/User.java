@@ -1,7 +1,11 @@
+// jBull | Defines the archetype for a User object
 package main.java;
 
 import java.io.Serializable;
 import java.util.HashMap;
+
+//User Class implements Serializable in order to be sent from client to server
+//All constructors automatically provide the user with a $1000.00 cash balance, unless another cash balance is passed through the constructor
 
 public class User implements Serializable {
 
@@ -9,6 +13,7 @@ public class User implements Serializable {
 	Double cashBalance, portfolioBalance;
 	HashMap<String, Integer> stockData;
 	
+	//Takes only user data to create a user object
 	public User(String fn, String ln, String u, String pw, String e, Double cB)
 	{
 		this.firstName = fn;
@@ -24,6 +29,7 @@ public class User implements Serializable {
 		this.portfolioBalance = 0.0;
 	}
 	
+	//Takes parameters to construct a full user object
 	public User (String fn, String ln, String u, String pw, String e, Double cB, HashMap<String, Integer> stockData) {
 		this.firstName = fn;
 		this.lastName = ln;
@@ -39,6 +45,7 @@ public class User implements Serializable {
 		this.stockData = stockData;
 	}
 	
+	//Takes string array to create user object
 	public User (String[] inputUserData) {
 		if (inputUserData.length == 6) {
 			this.firstName = inputUserData[0];

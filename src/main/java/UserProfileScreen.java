@@ -1,19 +1,18 @@
+// jBull | Displays data about the currently logged in user
 package main.java;
 
-import java.awt.EventQueue;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
-
-import java.awt.Color;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.Component;
+import javax.swing.JTextField;
 
 public class UserProfileScreen {
 
@@ -22,11 +21,8 @@ public class UserProfileScreen {
 	private JTextField last_name_field;
 	private JTextField email_field;
 
-
-	/**
-	 * Create the application.
-	 */
 	public UserProfileScreen(User currentuser) {
+		//Frame creation
 		frame = new JFrame();
 		frame.getContentPane().setBackground(Color.WHITE);
 		frame.setBounds(100, 100, 400, 400);
@@ -41,6 +37,7 @@ public class UserProfileScreen {
 		
 		frame.setIconImage(bullIcon.getImage());
 		
+		//Show all data for user by using getter methods on user object
 		JLabel username_field = new JLabel("New label");
 		username_field.setText(currentuser.getUsername());
 		username_field.setBounds(126, 55, 109, 16);
@@ -106,6 +103,7 @@ public class UserProfileScreen {
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setVisible(true);
 		
+		//Create window listener to pass user object back over to dashboard
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				frame.setVisible(false);
