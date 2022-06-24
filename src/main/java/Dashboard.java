@@ -61,7 +61,7 @@ public class Dashboard {
 	public static boolean connectedToSocket;
 
 	//Specifies the server's IP address for the client to connect to
-	public static final String SERVER_IP_TO_CONNECT_TO = "172.17.80.1";
+	public static final String SERVER_IP_TO_CONNECT_TO = "";
 
 	//Creates a client thread to handle the connection to the server
 	public void createClientThread(String inputAddr, int inputPort, User clientUser) {
