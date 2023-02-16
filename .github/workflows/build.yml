@@ -15,7 +15,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  Build:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
@@ -27,3 +27,23 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn clean package assembly:single
+  Release:
+    runs-on: windows-latest
+    steps:
+    - name: Generate Changelog
+      uses: scottbrenner/generate-changelog-action@master
+      id: Changelog
+      env:
+        REPO: ${{ github.repository }}
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ${{ steps.Changelog.outputs.changelog }}
+        draft: false
+        prerelease: false
