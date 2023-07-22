@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,33 +16,35 @@ import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvValidationException;
 
-public class fileIO {
+public class fileIOSQL {
 	String fileName = null;
 	CSVWriter writer = null;
 	ArrayList<String[]> data = new ArrayList<String[]>();
 
 	//Default constructor - should not be used
-	public fileIO() throws IOException
+	public fileIOSQL() throws IOException
 	{
 		fileName="transactionLog.csv"; 
 		writer = new CSVWriter(new FileWriter(fileName,true));
 	}
 
 	//Constructor to write a string to a new file - should not be used
-	public fileIO(String fn) throws IOException
+	public fileIOSQL(String fn) throws IOException
 	{
 		fileName = fn;
 		writer = new CSVWriter(new FileWriter(fileName,true));
 	}
 
+	
+	
 	//Add initial user data to the CSV
-	public void addtoCSV(User s) throws IOException
-	{
-		String[] a = {s.getFirstName(), s.getLastName(), s.getUsername(),s.getPassword(),s.getEmail(), (s.getCashBalance()).toString()};
-		data.add(a);
-		writer.writeAll(data);
-		writer.flush();
-	}
+//	public void createUser(User s) throws Exception
+//	{
+//		String[] a = {s.getFirstName(), s.getLastName(), s.getUsername(),s.getPassword(),s.getEmail(), (s.getCashBalance()).toString()};
+//		
+//		
+//		
+//	}
 	
 	//Reads the entire CSV file and returns an arraylist of all fields
 	public ArrayList<User> readAllUserData() throws CsvValidationException, IOException {
@@ -140,7 +141,6 @@ public class fileIO {
 				userData[1] = s.getLastName();
 				userData[2] = s.getUsername();
 				userData[3] = s.getPassword();
-				userData[4] = s.getEmail();
 				userData[5] = s.getCashBalance().toString();
 				
 				//Puts user data and stock data together on one String[]

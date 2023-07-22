@@ -9,18 +9,17 @@ import java.util.HashMap;
 
 public class User implements Serializable {
 
-	String firstName, lastName, username, password, email;
+	String firstName, lastName, username, password;
 	Double cashBalance, portfolioBalance;
 	HashMap<String, Integer> stockData;
 	
 	//Takes only user data to create a user object
-	public User(String fn, String ln, String u, String pw, String e, Double cB)
+	public User(String u, String pw, String fn, String ln, Double cB)
 	{
 		this.firstName = fn;
 		this.lastName = ln;
 		this.username = u;
 		this.password = pw;
-		this.email = e;
 		if (cB == null) {
 			this.cashBalance = 1000.0;
 		} else {
@@ -30,12 +29,11 @@ public class User implements Serializable {
 	}
 	
 	//Takes parameters to construct a full user object
-	public User (String fn, String ln, String u, String pw, String e, Double cB, HashMap<String, Integer> stockData) {
+	public User (String u, String pw, String fn, String ln, Double cB, HashMap<String, Integer> stockData) {
 		this.firstName = fn;
 		this.lastName = ln;
 		this.username = u;
 		this.password = pw;
-		this.email = e;
 		if (cB == null) {
 			this.cashBalance = 1000.0;
 		} else {
@@ -47,15 +45,14 @@ public class User implements Serializable {
 	
 	//Takes string array to create user object
 	public User (String[] inputUserData) {
-		if (inputUserData.length == 6) {
+		if (inputUserData.length == 5) {
 			this.firstName = inputUserData[0];
 			this.lastName = inputUserData[1];	
 			this.username = inputUserData[2];
 			this.password = inputUserData[3];
 
 			this.portfolioBalance = 0.0;
-			this.email = inputUserData[4];
-			this.cashBalance = Double.parseDouble(inputUserData[5]);
+			this.cashBalance = Double.parseDouble(inputUserData[4]);
 		}
 	}
 	
@@ -73,10 +70,6 @@ public class User implements Serializable {
 	
 	public String getPassword() {
 		return password;
-	}
-	
-	public String getEmail() {
-		return email;
 	}
 	
 	public Double getCashBalance() {
@@ -105,10 +98,6 @@ public class User implements Serializable {
 	
 	public void setPassword(String inputPassword) {
 		password = inputPassword;
-	}
-	
-	public void setEmail(String inputEmail) {
-		email = inputEmail;
 	}
 	
 	public void setCashBalance(Double inputCashBalance) {
