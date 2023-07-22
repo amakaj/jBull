@@ -212,7 +212,7 @@ public class QueryConstructor {
 	
 	public static void main(String[] args)
 	{
-		User u = new User("amakaj", "test-password", "Anthony", "Makaj", 1000.00);
+		User u = new User("amakaj", "test123", "Anthony", "Makaj", 1000.00);
 
 		try {
 			connectToDatabase();
