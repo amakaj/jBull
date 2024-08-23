@@ -9,12 +9,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class QueryConstructor {
-	final static String databaseName = "jBullDB.db";
-	static String url = "jdbc:sqlite:" + databaseName;
-	static Connection conn = null;
+public class FileIOSQL {
+	final String databaseName;
+	static String url;
+	static Connection conn;
+	
+	public FileIOSQL(String databaseName) {
+		this.databaseName = databaseName;
+		url = "jdbc:sqlite:" + databaseName;
+		conn = null;
+	}
 
-	public static void connectToDatabase() {
+	private static void connectToDatabase() {
 		try {
 			conn = DriverManager.getConnection(url);
 
@@ -24,7 +30,7 @@ public class QueryConstructor {
 		}
 	}
 	
-	public static void closeConnectionToDatabase() {
+	private static void closeConnectionToDatabase() {
 		try {
 			if (conn.isClosed())
 			{
@@ -38,9 +44,11 @@ public class QueryConstructor {
 		}
 	}
 
-	public static String getUserId(User u) throws SQLException
+	public String getUserId(User u) throws SQLException
 	{
-		String query = "SELECT u.user_id FROM USERS u"
+		connectToDatabase();
+		
+		String query = "SELECT u.user_id FROM USERS u "
 				+ "WHERE u.username = '" + u.username + "'";
 
 		String userId = null;
@@ -50,16 +58,19 @@ public class QueryConstructor {
 
 		userId = rs.getString("user_id");
 
+		closeConnectionToDatabase();
 		return userId;
 	}
 
-	public static void insertUserRecord(User u) throws SQLException {
+	public void insertUserRecord(User u) throws SQLException {
 		String username = u.username;
 		String password = u.password;
 		String first_name = u.firstName;
 		String last_name = u.lastName;
 		Double cash_balance = u.cashBalance;
 		Double portfolio_balance = u.portfolioBalance;
+		
+		connectToDatabase();
 		
 		String query =
 				"INSERT INTO Users (username, password, first_name, last_name, cash_balance, portfolio_balance) " +
@@ -69,9 +80,13 @@ public class QueryConstructor {
 
 		Statement statement = conn.createStatement();
 		statement.executeUpdate(query);
+		
+		closeConnectionToDatabase();
 	}
 
-	public static ArrayList<User> readAllUserData() throws SQLException {
+	public ArrayList<User> readAllUserData() throws SQLException {
+		connectToDatabase();
+		
 		String query = "SELECT * FROM Users";
 		ArrayList<User> listOfUsers = null;
 
@@ -88,8 +103,8 @@ public class QueryConstructor {
 			String password = rs.getString("password");
 			String firstName = rs.getString("first_name");
 			String lastName = rs.getString("last_name");
-			Double cashBalance = rs.getDouble("cash_balance");
-			Double portfolioBalance = rs.getDouble("portfolio_balance");
+			Double cashBalance = (Double) rs.getDouble("cash_balance");
+			Double portfolioBalance = (Double) rs.getDouble("portfolio_balance");
 
 			String stockQuery = "SELECT *"
 					+ "FROM Stocks s, Users u"
@@ -102,18 +117,22 @@ public class QueryConstructor {
 
 			while (rsStocks.next())
 			{
-				userMap.put(rs.getString("stock_ticker"), rs.getInt("quantity"));
+				userMap.put(rs.getString("stock_ticker"), Integer.valueOf(rs.getInt("quantity")));
 			}
 
 			listOfUsers.add(new User(username, password, firstName, lastName, cashBalance, userMap));
 		}
+		
+		closeConnectionToDatabase();
 		return listOfUsers;
 	}
 
-	public static HashMap<String, Integer> readStockData(User s)
+	public HashMap<String, Integer> readStockData(User s)
 	{
-		String query = "SELECT s.stock_ticker, s.quantity"
-				+ "FROM Stocks s, Users u"
+		connectToDatabase();
+		
+		String query = "SELECT s.stock_ticker, s.quantity "
+				+ "FROM Stocks s, Users u "
 				+ "WHERE s.user_id = u.user_id";
 
 		HashMap<String, Integer> stockData = null;
@@ -126,17 +145,19 @@ public class QueryConstructor {
 
 			while (rs.next())
 			{
-				stockData.put(rs.getString("stock_ticker"),rs.getInt("quantity"));
+				stockData.put(rs.getString("stock_ticker"), Integer.valueOf(rs.getInt("quantity")));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
+		closeConnectionToDatabase();
 		return stockData;
 	}
 
-	public static void addStockData(String userId, HashMap<String, Integer> h) throws SQLException
-	{
+	public void addStockData(String userId, HashMap<String, Integer> h) throws SQLException {
+		connectToDatabase();
+
 		String selectQuery = "SELECT stock_ticker FROM Stocks";
 		ArrayList<String> existingStocks = new ArrayList<String>();
 
@@ -147,38 +168,40 @@ public class QueryConstructor {
 			existingStocks.add(rs.getString("stock_ticker"));
 		}
 
-		for (Map.Entry<String, Integer> mapEntry : h.entrySet())
-		{
+		for (Map.Entry<String, Integer> mapEntry : h.entrySet()) {
 			//If the map entry's stock ticker is already in the list of the user's stock tickers, just update
-			if (existingStocks.contains(mapEntry.getKey()))
-			{
-				String updateQuery = "UPDATE Stocks"
+			if (existingStocks.contains(mapEntry.getKey())) {
+				String updateQuery = "UPDATE Stocks "
 						+ "SET quantity = " + mapEntry.getValue()
-						+ "WHERE user_id = '" + userId + "' AND stock_ticker = '" + mapEntry.getKey() + "'";
+						+ " WHERE user_id = '" + userId + "' AND stock_ticker = '" + mapEntry.getKey() + "'";
 
 				statement.executeUpdate(updateQuery);
 			} else { //else, create a new record
-				String insertQuery = "INSERT INTO Stocks(user_id, stock_ticker, quantity)"
+				String insertQuery = "INSERT INTO Stocks(user_id, stock_ticker, quantity) "
 						+ "VALUES(" + userId + ", '" + mapEntry.getKey() + "', " + mapEntry.getValue() + ")";
 
 				statement.executeUpdate(insertQuery);
 			}
 		}
+
+		closeConnectionToDatabase();
 	}
 	
 	public User authenticate(String username, String password) throws SQLException
 	{
-		String query = "SELECT * FROM Users u"
+		connectToDatabase();
+		
+		String query = "SELECT * FROM Users u "
 				+ "WHERE u.username = '" + username + "' AND u.password = '" + password + "'";
-	
+		
 		Statement statement = conn.createStatement();
 		ResultSet rs = statement.executeQuery(query);
 		
-		if (!(rs.wasNull()))
+		if (rs.next())
 		{
-			String stockQuery = "SELECT s.stock_ticker, s.quantity"
-					+ "FROM Users u, Stocks s"
-					+ "WHERE u.user_id = s.user_id";
+			String stockQuery = "SELECT s.stock_ticker, s.quantity "
+					+ "FROM Users u, Stocks s "
+					+ "WHERE u.user_id = s.user_id ";
 			
 			HashMap<String, Integer> stockData = new HashMap<String, Integer>();
 			
@@ -187,16 +210,21 @@ public class QueryConstructor {
 			
 			while (stocksRs.next())
 			{
-				stockData.put(stocksRs.getString("stock_ticker"), stocksRs.getInt("quantity"));
+				stockData.put(stocksRs.getString("stock_ticker"), Integer.valueOf(stocksRs.getInt("quantity")));
 			}
 			
-			return new User(username, password, rs.getString("first_name"), rs.getString("last_name"), rs.getDouble("cash_balance"), stockData);
+			User returnedUser = new User(username, password, rs.getString("first_name"), rs.getString("last_name"), (Double) rs.getDouble("cash_balance"), stockData);
+			
+			closeConnectionToDatabase();
+			return returnedUser;
 		} else {
+			closeConnectionToDatabase();
 			return null;
 		}
 	}
 	
-	private static void printAllRecordsFromTable(String table) throws SQLException {
+	private void printAllRecordsFromTable(String table) throws SQLException {
+		connectToDatabase();
 		String query = "SELECT * FROM " + table + ";";
 		
 		Statement statement = conn.createStatement();
@@ -208,20 +236,6 @@ public class QueryConstructor {
 			System.out.println(rs.getString(counter));
 			counter++;
 		}
-	}
-	
-	public static void main(String[] args)
-	{
-		User u = new User("amakaj", "test123", "Anthony", "Makaj", 1000.00);
-
-		try {
-			connectToDatabase();
-			insertUserRecord(u);
-			printAllRecordsFromTable("Users");
-			closeConnectionToDatabase();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
+		closeConnectionToDatabase();
 	}
 }

@@ -28,11 +28,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.opencsv.exceptions.CsvException;
-
-import yahoofinance.Stock;
-import yahoofinance.YahooFinance;
-
 public class BuySell {
 	private JTextField stockSearchField;
 	private JTextField numOfSharesField;
@@ -61,16 +56,18 @@ public class BuySell {
 							try {
 
 								//Retrieve the stock object using the symbol specified in the stock search field
-								Stock s = YahooFinance.get(stockSearchField.getText());
+//								Stock s = YahooFinance.get();
+								StockAPIWrapper stockAPIWrapper = new StockAPIWrapper();
+								Double stockPrice = stockAPIWrapper.getStockPrice(stockSearchField.getText());
 
 								//If a stock was found, get the price and multiply it by the specified number of shares
-								if (s != null) {
-									priceOfFieldShare = s.getQuote().getPrice().doubleValue() * Double.parseDouble(numOfSharesField.getText());
+								if (stockPrice != null) {
+									priceOfFieldShare = stockPrice * Double.parseDouble(numOfSharesField.getText());
 									priceLabel.setText("Price: $" + String.format("%.2f", priceOfFieldShare));
 								} else {
 									priceLabel.setText("Price: $---");
 								}
-							} catch (IOException|NullPointerException e) {
+							} catch (NullPointerException e) {
 								e.printStackTrace();
 							}
 						}
@@ -107,17 +104,13 @@ public class BuySell {
 				//Gets an individual element
 				Map.Entry mapElement = (Map.Entry)hmIterator.next();
 
-				try {
-					//Retrieves stock price for the current stock symbol (i.e., AAPL, TSLA, AMZN, etc.)
-					Stock s = YahooFinance.get(mapElement.getKey().toString());
+                //Retrieves stock price for the current stock symbol (i.e., AAPL, TSLA, AMZN, etc.)
+                StockAPIWrapper stockAPIWrapper = new StockAPIWrapper();
+                Double stockPrice = stockAPIWrapper.getStockPrice(mapElement.getKey().toString());
 
-					//Take the stock symbol, multiply it by # of shares, and add to portfolioBalance
-					portfolioBalance += (s.getQuote().getPrice()).doubleValue() * Integer.parseInt(mapElement.getValue().toString());
-
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+                //Take the stock symbol, multiply it by # of shares, and add to portfolioBalance
+                portfolioBalance += (stockPrice * Integer.parseInt(mapElement.getValue().toString()));
+            }
 
 			//Assign portfolioBalance to user object
 			currentUser.setPortfolioBalance(portfolioBalance);
@@ -161,17 +154,13 @@ public class BuySell {
 			while (hashMapIterator.hasNext()) {
 				Map.Entry hmElement = (Map.Entry) hashMapIterator.next();
 
-				try {
-					//Retrieve a stock object and price for the given symbol
-					Stock s = YahooFinance.get(hmElement.getKey().toString());
-					String stockPrice = (s.getQuote().getPrice()).toString();
+                //Retrieve a stock object and price for the given symbol
+                StockAPIWrapper stockAPIWrapper = new StockAPIWrapper();
+                String stockPrice = (stockAPIWrapper.getStockPrice((hmElement.getKey()).toString())).toString();
 
-					//Add the data to the stock table model
-					stockTableModel.addRow(new Object[] {hmElement.getKey(), hmElement.getValue(), stockPrice});
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
+                //Add the data to the stock table model
+                stockTableModel.addRow(new Object[] {hmElement.getKey(), hmElement.getValue(), stockPrice});
+            }
 		}
 
 		//Reinitialize, revalidate, and redraw the stock table with the new model
@@ -371,9 +360,9 @@ public class BuySell {
 		buySellFrame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				try {
-					fileIO fio = new fileIO("add_user.txt");
-					fio.addStockData(currentUser, stockData);
-				} catch (IOException | CsvException e1) {
+					FileIOSQL fios = new FileIOSQL("jBullDB.db");
+					fios.addStockData(fios.getUserId(currentUser), stockData);
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 

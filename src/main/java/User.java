@@ -21,11 +21,11 @@ public class User implements Serializable {
 		this.username = u;
 		this.password = pw;
 		if (cB == null) {
-			this.cashBalance = 1000.0;
+			this.cashBalance = (Double) 1000.0;
 		} else {
 			this.cashBalance = cB;
 		}
-		this.portfolioBalance = 0.0;
+		this.portfolioBalance = (Double) 0.0;
 	}
 	
 	//Takes parameters to construct a full user object
@@ -35,11 +35,11 @@ public class User implements Serializable {
 		this.username = u;
 		this.password = pw;
 		if (cB == null) {
-			this.cashBalance = 1000.0;
+			this.cashBalance = (Double) 1000.0;
 		} else {
 			this.cashBalance = cB;
 		}
-		this.portfolioBalance = 0.0;
+		this.portfolioBalance = (Double) 0.0;
 		this.stockData = stockData;
 	}
 	
@@ -51,11 +51,11 @@ public class User implements Serializable {
 			this.username = inputUserData[2];
 			this.password = inputUserData[3];
 
-			this.portfolioBalance = 0.0;
-			this.cashBalance = Double.parseDouble(inputUserData[4]);
+			this.portfolioBalance = (Double) 0.0;
+			this.cashBalance = (Double) Double.parseDouble(inputUserData[4]);
 		}
 	}
-	
+
 	public String getFirstName() {
 		return firstName;
 	}

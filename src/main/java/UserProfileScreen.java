@@ -19,7 +19,6 @@ public class UserProfileScreen {
 	private JFrame frame;
 	private JTextField first_name_field;
 	private JTextField last_name_field;
-	private JTextField email_field;
 
 	public UserProfileScreen(User currentuser) {
 		//Frame creation
@@ -89,17 +88,7 @@ public class UserProfileScreen {
 		panel_2.setBackground(Color.WHITE);
 		verticalBox.add(panel_2);
 		panel_2.setLayout(null);
-		
-		JLabel email_label = new JLabel("Email");
-		email_label.setBounds(41, 18, 61, 16);
-		panel_2.add(email_label);
-		
-		email_field = new JTextField();
-		email_field.setColumns(10);
-		email_field.setEditable(false);
-		email_field.setText(currentuser.getEmail());
-		email_field.setBounds(95, 13, 186, 26);
-		panel_2.add(email_field);
+
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setVisible(true);
 		

@@ -42,11 +42,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 
-import com.opencsv.exceptions.CsvException;
-
-import yahoofinance.Stock;
-import yahoofinance.YahooFinance;
-
 public class Dashboard {
 	JMenuBar menubar = new JMenuBar();
 	private JTable stockTable;
@@ -54,7 +49,7 @@ public class Dashboard {
 	private JTextField serverMessageField;
 	
 	/*----------------SERVER CODE----------------*/
-	
+
 	//Creation of socket objects/variables
 	Socket clientSocket = null;
 	ObjectOutputStream outToServer;
@@ -120,8 +115,9 @@ public class Dashboard {
 					//For each stock in the input, get the price and apply it to the table again
 					for (int i = 0; i < topStocksDataInput.length; i++) {
 						try {
-							Stock s = YahooFinance.get(topStocksDataInput[i][0].toString());
-							Double stockPrice = s.getQuote().getPrice().doubleValue();
+							StockAPIWrapper s = new StockAPIWrapper();
+
+							Double stockPrice = s.getStockPrice(topStocksDataInput[i][0].toString());
 							topStocksDataInput[i][1] = stockPrice;
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -131,8 +127,8 @@ public class Dashboard {
 						topStocksTable.repaint();
 					}
 					try {
-						// update every second (usually 1 second behind system clock)
-						sleep(1000L);
+						// update every 3 seconds (usually 1 second behind system clock)
+						sleep(3000L);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -204,7 +200,7 @@ public class Dashboard {
 		totalBalanceLabel.setFont(new Font("Arial", Font.BOLD, 16));
 		totalBalanceLabel.setBounds(398, 80, 106, 20);
 		panel1.add(totalBalanceLabel);
-		totalBalanceLabel.setText(String.format("$%.2f", (currentUser.getPortfolioBalance() + currentUser.getCashBalance())));
+		totalBalanceLabel.setText(String.format("$%.2f", ((Double) currentUser.getPortfolioBalance() + (Double) currentUser.getCashBalance())));
 
 		JLabel stocksOwnedLabel = new JLabel("Stocks Owned");
 		stocksOwnedLabel.setFont(new Font("Arial", Font.BOLD, 24));
@@ -224,13 +220,10 @@ public class Dashboard {
 				Map.Entry hmElement = (Map.Entry) hashMapIterator.next();
 				data[tableIndex][0] = hmElement.getKey();
 				data[tableIndex][1] = hmElement.getValue();
-				try {
-					Stock s = YahooFinance.get(hmElement.getKey().toString());
-					data[tableIndex][2] = (s.getQuote().getPrice()).toString();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-				tableIndex++;
+
+                StockAPIWrapper s = new StockAPIWrapper();
+                data[tableIndex][2] = (s.getStockPrice(hmElement.getKey().toString())).toString();
+                tableIndex++;
 			}
 		}
 
@@ -262,7 +255,7 @@ public class Dashboard {
 		String[] columnName2 = { "Symbol", "Price/Share ($)" };
 
 		//PARSING HASHMAP DATA INTO TABLE
-		Object[][] topStocksData = {{"AAPL", 0.0}, {"MSFT", 0.0}, {"AMZN", 0.0}, {"TSLA", 0.0}, {"GOOG", 0.0}, {"NVDA", 0.0}, {"NFLX", 0.0}, {"FB", 0.0}, {"UNH", 0.0}, {"JNJ", 0.0}, {"JPM", 0.0}, {"V", 0.0}, {"PG", 0.0}, {"XOM", 0.0}, {"HD", 0.0}, {"CVX", 0.0}, {"MA", 0.0}, {"BAC", 0.0}, {"ABBV", 0.0}};
+		Object[][] topStocksData = {{"AAPL", 0.0}, {"MSFT", 0.0}, {"AMZN", 0.0}, {"TSLA", 0.0}, {"GOOG", 0.0}, {"NVDA", 0.0}, {"NFLX", 0.0}, {"AAPL", 0.0}, {"UNH", 0.0}, {"JNJ", 0.0}, {"JPM", 0.0}, {"V", 0.0}, {"PG", 0.0}, {"XOM", 0.0}, {"HD", 0.0}, {"CVX", 0.0}, {"MA", 0.0}, {"BAC", 0.0}, {"ABBV", 0.0}};
 
 		JScrollPane topStocksScrollPane = new JScrollPane();
 		topStocksScrollPane.setBounds(16, 309, 304, 199);
@@ -362,19 +355,16 @@ public class Dashboard {
 			while (hashMapIterator.hasNext()) {
 				Map.Entry hmElement = (Map.Entry) hashMapIterator.next();
 
-				try {
-					Stock s = YahooFinance.get(hmElement.getKey().toString());
-					String symbol = hmElement.getKey().toString();
-					Integer numOfShares = (Integer) hmElement.getValue();
+                StockAPIWrapper s = new StockAPIWrapper();
 
-					Double stockPrice = numOfShares * (s.getQuote().getPrice().doubleValue());
+                String symbol = hmElement.getKey().toString();
+                Integer numOfShares = (Integer) hmElement.getValue();
 
-					pieDataset.setValue(symbol, stockPrice);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+                Double stockPrice = numOfShares * (s.getStockPrice(symbol));
 
-			}
+                pieDataset.setValue(symbol, stockPrice);
+
+            }
 		}	
 
 		JFreeChart pChart = ChartFactory.createPieChart(null, pieDataset, false, false, false);
@@ -501,9 +491,9 @@ public class Dashboard {
 
 					//Write stock data for user to file
 					try {
-						fileIO fio = new fileIO("add_user.txt");
-						fio.addStockData(currentUser, stockData);
-					} catch (IOException | CsvException e1) {
+						FileIOSQL fios = new FileIOSQL("jBullDB.db");
+						fios.addStockData(fios.getUserId(currentUser), stockData);
+					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
@@ -512,8 +502,6 @@ public class Dashboard {
 				} else {
 					frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 				}
-
-
 			}
 		});
 
