@@ -75,7 +75,6 @@ public class Backend
 
 	private static JLabel userDataLabel;
 	private static JLabel usernameLabel;
-	private static JLabel emailLabel;
 	private static JTable stockTable;
 	private static JLabel lblTotal = new JLabel("Total: " + totalNumOfUsers);
 
@@ -391,7 +390,6 @@ public class Backend
 							updateStockList(u);
 							userDataLabel.setVisible(true);
 							usernameLabel.setText("Username: " + u.getUsername());
-							emailLabel.setText("Email: " + u.getEmail());
 						}
 					}
 				}
@@ -459,11 +457,6 @@ public class Backend
 		usernameLabel.setBounds(283, 41, 185, 20);
 		rightPanel.add(usernameLabel);
 
-		emailLabel = new JLabel("");
-		emailLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-		emailLabel.setBounds(283, 63, 185, 20);
-		rightPanel.add(emailLabel);
-		
 		lblTotal.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblTotal.setFont(new Font("Arial", Font.BOLD, 16));
 		lblTotal.setBounds(179, 29, 91, 20);

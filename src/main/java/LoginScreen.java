@@ -1,17 +1,15 @@
 // jBull | Allows the user to begin their session by retrieving their stock data and user details
 package main.java;
 
-import com.opencsv.exceptions.CsvException;
-import yahoofinance.*;
-
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.io.IOException;
 import java.rmi.UnknownHostException;
-
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -54,7 +52,7 @@ public class LoginScreen {
 		userLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
 		userLabel.setBounds(37, 246, 263, 16);
 		panel.add(userLabel);
-		
+
 		JLabel passLabel = new JLabel("Password");
 		passLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
 		passLabel.setBounds(37, 296, 263, 16);
@@ -91,65 +89,63 @@ public class LoginScreen {
 		//Retrieving bull image icon and assigning it to the frame
 		ImageIcon bullToolbarIcon = new ImageIcon(
 				new ImageIcon(getClass().getResource("/main/resources/bull.png")).getImage()
-				.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
+						.getScaledInstance(30, 30, Image.SCALE_DEFAULT));
 		loginFrame.setIconImage(bullToolbarIcon.getImage());
 
 		// Login action listener
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				//Access database
+				FileIOSQL fios = new FileIOSQL("jBullDB.db");
+
+				//Authenticate user using CSV data and put it into a User object
+				User authenticatedUser = null;
 				try {
-					//Access file
-					fileIO fio = new fileIO("add_user.txt");
+					authenticatedUser = fios.authenticate(userField.getText(), passField.getText());
+				} catch (SQLException s)
+				{
+					s.printStackTrace();
+				}
 
-					//Authenticate user using CSV data and put it into a User object
-					User authenticatedUser = fio.authenticate(userField.getText(), passField.getText());
+				//If there is a user in the list
+				if (authenticatedUser != null) {
+					Double portfolioBalance = (Double) 0.0;
 
-					//If there is a user in the list
-					if (authenticatedUser != null) {
-						Double portfolioBalance = 0.0;
+					//Create a stock data instance for the user by reading the CSV
+					HashMap<String,Integer> newMap = fios.readStockData(authenticatedUser);
 
-						//Create a stock data instance for the user by reading the CSV
-						HashMap<String,Integer> newMap = fio.readStockData(authenticatedUser);
-						
-						//Assign that stock data to the user
-						authenticatedUser.setStockData(newMap);
+					//Assign that stock data to the user
+					authenticatedUser.setStockData(newMap);
 
-						try {
-							if (!newMap.isEmpty()) {
-								// Iterates through each pair in the hashmap
-								Iterator hmIterator = (authenticatedUser.getStockData()).entrySet().iterator();
+					if (!newMap.isEmpty()) {
+						// Iterates through each pair in the hashmap
+						Iterator hmIterator = (authenticatedUser.getStockData()).entrySet().iterator();
 
-								//Loops for each pair in the hashmap
-								while (hmIterator.hasNext()) {
-									//Gets an individual element
-									Map.Entry mapElement = (Map.Entry)hmIterator.next();
-									
-									//Retrieves stock price for the current stock symbol (i.e., AAPL, TSLA, AMZN, etc.)
-									Stock s = YahooFinance.get(mapElement.getKey().toString());
-									
-									//Take the stock symbol, multiply it by # of shares, and add to portfolioBalance
-									portfolioBalance += (s.getQuote().getPrice()).doubleValue() * Integer.parseInt(mapElement.getValue().toString());
-								}
-								
-								//Assign portfolioBalance to user object
-								authenticatedUser.setPortfolioBalance(portfolioBalance);
-							}
-						} catch (UnknownHostException ukHostEx) { 
-							//If the host is unknown or the user is not connected to the internet
-							ukHostEx.printStackTrace();
-							JOptionPane.showMessageDialog(null, "ERROR! Unknown host, please ensure that you are connected to the internet!", "Login",JOptionPane.WARNING_MESSAGE);
+						//Loops for each pair in the hashmap
+						while (hmIterator.hasNext()) {
+							//Gets an individual element
+							Map.Entry mapElement = (Map.Entry)hmIterator.next();
+
+							//Retrieves stock price for the current stock symbol (i.e., AAPL, TSLA, AMZN, etc.)
+							StockAPIWrapper s = new StockAPIWrapper();
+
+							Double stockPrice = s.getStockPrice(mapElement.getKey().toString());
+
+							//Take the stock symbol, multiply it by # of shares, and add to portfolioBalance
+							portfolioBalance += (stockPrice * Integer.parseInt(mapElement.getValue().toString()));
 						}
 
-						//Pass user object and create Dashboard instance
-						Dashboard d = new Dashboard(authenticatedUser);						
-						loginFrame.setVisible(false);
-						loginFrame.dispose();
-					} else {
-						//If user is not found in CSV
-						JOptionPane.showMessageDialog(null, "ERROR! User not found", "Login",JOptionPane.WARNING_MESSAGE);
+						//Assign portfolioBalance to user object
+						authenticatedUser.setPortfolioBalance(portfolioBalance);
 					}
-				} catch (IOException | CsvException e1) {
-					e1.printStackTrace();
+
+					//Pass user object and create Dashboard instance
+					Dashboard d = new Dashboard(authenticatedUser);
+					loginFrame.setVisible(false);
+					loginFrame.dispose();
+				} else {
+					//If user is not found in CSV
+					JOptionPane.showMessageDialog(null, "ERROR! User not found", "Login",JOptionPane.WARNING_MESSAGE);
 				}
 			}
 		});

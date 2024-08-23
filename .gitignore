@@ -5,3 +5,4 @@ LICENSE
 *.class
 add_user.txt
 /target/
+properties.cfg

@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -29,8 +30,6 @@ public class AccountCreation {
 	private JLabel userLabel;
 	private JTextField userField;
 	private JLabel passLabel;
-	private JLabel emailLabel;
-	private JTextField emailField;
 	private JButton backToLogin;
 	private JButton createButton;
 	private JPasswordField passField;
@@ -104,12 +103,6 @@ public class AccountCreation {
 		passLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
 		passLabel.setBounds(20, 220, 107, 16);
 		panel.add(passLabel);
-
-		//Label for email field
-		emailLabel = new JLabel("Email");
-		emailLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
-		emailLabel.setBounds(20, 282, 82, 16);
-		panel.add(emailLabel);
 		
 		//Field to retrieve first name from user
 		firstNameField = new JTextField();
@@ -139,13 +132,6 @@ public class AccountCreation {
 		passField.setBackground(Color.WHITE);
 		passField.setBounds(20, 240, 445, 20);
 		panel.add(passField);
-
-		//Email field to retrieve email from user
-		emailField = new JTextField();
-		emailField.setColumns(10);
-		emailField.setBackground(Color.WHITE);
-		emailField.setBounds(20, 300, 445, 20);
-		panel.add(emailField);
 
 		//Button to bring user back to login screen
 		backToLogin = new JButton("Back to Login");
@@ -178,23 +164,11 @@ public class AccountCreation {
 				String lastName = lastNameField.getText().trim();
 				String username_string = userField.getText().trim();
 				String password_string = passField.getText().trim();
-				String email_string = emailField.getText().trim();
-				boolean valid_email = false;
 				boolean valid_info = false;
-
-				//If the email doesn't contain an @, indicate to user that it's not a valid email
-				if(email_string.contains("@") == false) {
-					JOptionPane.showMessageDialog(null, "ERROR! Not a valid email! Try Again!", "Account Creation",JOptionPane.WARNING_MESSAGE);
-				}
-				else
-				{
-					valid_email = true;
-				}
 				
 				//If any of the fields are empty, throw a warning message, otherwise, indicate that the info is valid and that the account was created
 				if((username_string == "" || username_string == null || username_string.length() == 0)
 						|| (password_string == "" || password_string == null || password_string.length() == 0)
-						|| (email_string == "" || email_string == null || email_string.length() == 0 || valid_email == false)
 						|| (firstName == "" || firstName == null || firstName.length() == 0)
 						|| (lastName == "" || lastName == null || lastName.length() == 0)) 
 				{
@@ -210,22 +184,19 @@ public class AccountCreation {
 				lastNameField.setText("");
 				userField.setText("");
 				passField.setText("");
-				emailField.setText("");
 
 				//Write account data to CSV as a user object
-				if(valid_email == true & valid_info == true)
+				if(valid_info)
 				{
-					User userObj = new User(firstName, lastName, username_string,password_string, email_string, null);
+					User userObj = new User(username_string, password_string, firstName, lastName, null);
 					try {
-						fileIO fio = new fileIO("add_user.txt");
-						fio.addtoCSV(userObj);
-					} catch (IOException e1) {
+						FileIOSQL sqlDatabase = new FileIOSQL("jBullDB.db");
+						sqlDatabase.insertUserRecord(userObj);
+					} catch (SQLException e1) {
 						e1.printStackTrace();
 					}
-				}
+                }
 			}
 		});
 	}
 }
-
-
